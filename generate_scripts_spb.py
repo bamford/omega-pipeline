@@ -15,7 +15,7 @@ for ii in range(0,len(all_fields)):
         f1.write('%7s%i%1s\n'%('glx=f0[',kk,']'))
         f1.write('%5s %3s\n'%('print', 'glx'))
         f1.write('%6s %20s\n'%('import','run_mcmc_evidence'))
-        f1.write('run_mcmc_evidence.run_glx(glx, {0}, {1})'.format(all_fields[ii], 'aper5'))
+        f1.write('run_mcmc_evidence.run_glx(glx, {0}, {1})'.format(all_fields[ii], '"aper5"'))
         f1.close()
 
     for jj in range(0,idstotal[ii]):
@@ -28,5 +28,5 @@ for ii in range(0,len(all_fields)):
         f1.write('%7s%i%1s\n'%('glx=f0[',jj,']'))
         f1.write('%5s %3s\n'%('print', 'glx'))
         f1.write('%6s %20s\n'%('import','run_mcmc_evidence'))
-        f1.write('run_mcmc_evidence.run_glx(glx, {0}, {1})'.format(all_fields[ii], 'total_aper'))
+        f1.write('run_mcmc_evidence.run_glx(glx, {0}, {1})'.format(all_fields[ii], '"total_aper"'))
         f1.close()

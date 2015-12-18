@@ -440,7 +440,7 @@ def run_glx(glx, field, aper):
     phdu.header['EV_FLAT'] = evidence_flat
     hdulist = pyfits.HDUList([phdu, tbhdu])
     hdulist.writeto((output_path + 'table_{glx}.fits').format(
-        aper=aper, field=field, glx=glx, label=label))
+        aper=aper, field=field, glx=glx))
 
     plot_chain(sampler_fixha_pt, par_fixha, aper, field, glx, label='fixha')
     plot_chain(sampler_slope_pt, par_slope, aper, field, glx, label='slope')

@@ -277,6 +277,7 @@ def autocor_checks(sampler, aper, field, glx, label=''):
     ax.plot(all_R_k)
     plt.savefig((output_path + 'F{field}_gal_{label}_{glx}_convergence_test.pdf').format(
         aper=aper, field=field, glx=glx, label=label))
+    return a_exp, a_int
 
 
 def acc_frac_checks(sampler, aper, field, glx, label=''):

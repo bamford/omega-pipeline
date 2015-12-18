@@ -27,7 +27,7 @@ def gaussian(x, ampl, centre, sigma):
     return (ampl/(sigma*sqrt(2*pi))) * np.exp(-(x-centre)**2/(2.0*sigma**2))
 
 
-def softbox(x, low, high, edgelevel=0.9, cutoffwidth=None, cutofflevel=0.01):
+class Softbox:
     """A soft-edged box function
 
     This produces a box over the range low to high, with soft edges.
@@ -36,17 +36,27 @@ def softbox(x, low, high, edgelevel=0.9, cutoffwidth=None, cutofflevel=0.01):
     to cutofflevel after a further cutoffwidth, i.e. at x = low - cutoffwidth
     and vice versa.
 
+    When an object is created, the initial parameters are tuned to give
+    (approximately) the behaviour specified.  The object may then be called
+    to obtain its value for different arguments.
+
     """
-    centre = 0.5*(high + low)
-    halfwidth = 0.5*(high - low)
-    index = (np.log(np.log(cutofflevel)/np.log(edgelevel)) /
-             np.log((halfwidth + cutoffwidth)/halfwidth))
-    index = int(ceil(index))
-    print 'softbox index is', index
-    if index%2 != 0:
-        index += 1
-    sigma = -(halfwidth)**index / np.log(edgelevel)
-    return np.exp(-(x-centre)**index / sigma)
+
+    def __init__(self, low, high, cutoffwidth,
+                 edgelevel=0.9, cutofflevel=0.01):
+        self.centre = 0.5 * (high + low)
+        self.halfwidth = 0.5 * (high - low)
+        index = (np.log(np.log(cutofflevel) / np.log(edgelevel)) /
+                 np.log((self.halfwidth + cutoffwidth) / self.halfwidth))
+        index = int(ceil(index))
+        if index % 2 != 0:
+            index += 1
+        self.index = index
+        print 'softbox index is', self.index
+        self.sigma = -(self.halfwidth)**index / np.log(edgelevel)
+
+    def __call__(self, x):
+        return np.exp(-(x - self.centre)**self.index / self.sigma)
 
 
 def fixha_model(x, p):
@@ -79,7 +89,7 @@ def lnprior_hard_fixha(p, zmin, zmax):
         return 0.0
 
 
-def lnprior_soft_fixha(p, xmin, xmax):
+def lnprior_soft_fixha(p, xmin, xmax, softbox):
     continuum, redshift, fluxHa, fluxNII = p
     lnprior = 0.0
 
@@ -93,9 +103,7 @@ def lnprior_soft_fixha(p, xmin, xmax):
     zmax = xmax/wlHa - 1
     # Set cutoffwidth such that prior ~< 0.01 by point at which
     # Halpha is out of wavelength range by 3 sigma
-    cutoffwidth = 21/wlHa
-    lnprior += np.log(softbox(redshift, zmin, zmax,
-                              cutoffwidth=cutoffwidth))
+    lnprior += np.log(softbox(redshift))
 
     # Limit ratio fluxNII < (3*fluxHa + 3*continuum)
     # i.e. allow for up to an EW of 3A absorption
@@ -347,11 +355,13 @@ def run_glx(glx, field, aper):
 
     # fixha
     p0 = init_p0_fixha(ymin, ymax, zmin, zmax)
+    softbox = Softbox(zmin, zmax, cutoffwidth=21/wlHa)
+
     def logl(x):
         return lnprob_fixha(x, ymeans, xmeans, icov)
     def logp(x):
         # PRIORS SHOULD BE PROPER AND CORRECTLY NORMALISED
-        return lnprior_soft_fixha(x, xmin, xmax)
+        return lnprior_soft_fixha(x, xmin, xmax, softbox)
     ndim = p0.shape[-1]
     p0 = p0 * np.ones((ntemps, nwalkers, p0.shape[-1]))
     sampler_fixha_pt = PTSampler(ntemps, nwalkers, ndim, logl, logp)

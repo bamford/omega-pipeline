@@ -42,6 +42,7 @@ def softbox(x, low, high, edgelevel=0.9, cutoffwidth=None, cutofflevel=0.01):
     index = (np.log(np.log(cutofflevel)/np.log(edgelevel)) /
              np.log((halfwidth + cutoffwidth)/halfwidth))
     index = int(ceil(index))
+    print 'softbox index is', index
     if index%2 != 0:
         index += 1
     sigma = -(halfwidth)**index / np.log(edgelevel)

@@ -20,7 +20,7 @@ nwalkers = 300
 nburn = 500
 nsamp = 500
 
-output_path = '../mcmc_fits/galaxy_pages_{aper}/F{field}/'
+output_path = '../mcmc_fits/galaxy_pages_{aper}_spb/F{field}/'
 
 def gaussian(x, ampl, centre, sigma):
     # with unit area

@@ -328,7 +328,7 @@ def plot_triangle(sampler, par, model, aper, field, glx, label='', model_pars=[]
 
 
 def run_glx(glx, field, aper):
-    xmeans, ymeans, error_flux, icov, xmin, xmax, ymin, ymax, zmin, zmax = get_data(glx, field)
+    xmeans, ymeans, error_flux, icov, xmin, xmax, ymin, ymax, zmin, zmax = get_data(glx, field, aper)
     ntemps = 10
 
     # fixha

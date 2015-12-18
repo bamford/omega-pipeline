@@ -379,10 +379,10 @@ def run_glx(glx, field, aper):
     evidence_flat = sampler_flat_pt.thermodynamic_integration_log_evidence()
 
     ### Creating the FITS file with the samplers and the probability
-    cols = [pyfits.Column(name='continuum', format='E', array=flattable[:,0])
-            pyfits.Column(name='redshift', format='E', array=flattable[:,1])
-            pyfits.Column(name='flux Ha', format='E', array=flattable[:,2])
-            pyfits.Column(name='flux NII', format='E', array=flattable[:,3])
+    cols = [pyfits.Column(name='continuum', format='E', array=flattable[:,0]),
+            pyfits.Column(name='redshift', format='E', array=flattable[:,1]),
+            pyfits.Column(name='flux Ha', format='E', array=flattable[:,2]),
+            pyfits.Column(name='flux NII', format='E', array=flattable[:,3]),
             pyfits.Column(name='Probability', format='E', array=prob)]
 
     tbhdu = pyfits.new_table(pyfits.ColDefs(cols))

@@ -13,9 +13,9 @@ for i in range(len(all_fields)):
 
 print fieldDict
 
-#make array_mcmc_pt_aper5_field*.sh
+#make array_mcmc_pt_aper5_spb_field*.sh
 for key in fieldDict.keys():
-    fout = open('array_mcmc_pt_aper5_field%d.sh'%(key),'w')
+    fout = open('array_mcmc_pt_aper5_spb_field%d.sh'%(key),'w')
     fout.write('#!/bin/bash\n')
 
     fout.write('# This an example task array script\n')
@@ -49,16 +49,16 @@ for key in fieldDict.keys():
     fout.write('echo  "The TASK ID of *this* task is : $PBS_ARRAY_INDEX"\n')
 
     fout.write('echo "If I named my input file INPUT.$PBS_ARRAY_INDEX, I could run my program on this file in parallel with all the other input files"\n')
-    fout.write('./script_aper5_field%d.$PBS_ARRAY_INDEX\n'%key)
+    fout.write('./script_aper5_spb_field%d.$PBS_ARRAY_INDEX\n'%key)
     fout.write('sleep 20\n')
 
     fout.write('echo "Finished job now"\n')
 
     fout.close()
 
-#make array_mcmc_pt_total_aper_field*.sh
+#make array_mcmc_pt_total_aper_spb_field*.sh
 for key in fieldDict.keys():
-    fout = open('array_mcmc_pt_total_aper_field%d.sh'%(key),'w')
+    fout = open('array_mcmc_pt_total_aper_spb_field%d.sh'%(key),'w')
     fout.write('#!/bin/bash\n')
 
     fout.write('# This an example task array script\n')
@@ -92,7 +92,7 @@ for key in fieldDict.keys():
     fout.write('echo  "The TASK ID of *this* task is : $PBS_ARRAY_INDEX"\n')
 
     fout.write('echo "If I named my input file INPUT.$PBS_ARRAY_INDEX, I could run my program on this file in parallel with all the other input files"\n')
-    fout.write('./script_total_aper_field%d.$PBS_ARRAY_INDEX\n'%key)
+    fout.write('./script_total_aper_spb_field%d.$PBS_ARRAY_INDEX\n'%key)
     fout.write('sleep 20\n')
 
 

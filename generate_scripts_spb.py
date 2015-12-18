@@ -6,7 +6,7 @@ all_fields, ids5, idstotal = np.loadtxt('../plot_aper/galaxies_per_field_hst.txt
 for ii in range(0,len(all_fields)):
     for kk in range(0,ids5[ii]):
 
-        f1 = open('script_aper5_field'+str(int(all_fields[ii]))+'.'+str(kk)+'','w+')
+        f1 = open('script_aper5_spb_field'+str(int(all_fields[ii]))+'.'+str(kk)+'','w+')
 
         f1.write('%1s%20s\n'%('#','!/home/ppzsb1/projects/OMEGA/py-omega/bin/python'))
         f1.write('%6s %5s % 2s %2s\n'%('import', 'numpy', 'as', 'np'))
@@ -14,12 +14,12 @@ for ii in range(0,len(all_fields)):
         f1.write('%30s %1s%1s%1s%1s\n'%('f0=np.loadtxt(filename0,dtype=',"'",'i',"'",')'))
         f1.write('%7s%i%1s\n'%('glx=f0[',kk,']'))
         f1.write('%5s %3s\n'%('print', 'glx'))
-        f1.write('%6s %20s\n'%('import','run_mcmc_pt_aper5_all'))
-        f1.write('%31s%i%1s\n'%('run_mcmc_pt_aper5_all.run_glx(glx,',all_fields[ii],')'))
+        f1.write('%6s %20s\n'%('import','run_mcmc_evidence'))
+        f1.write('run_mcmc_evidence.run_glx(glx, {}, {})'.format(all_fields[ii], 'aper5'))
         f1.close()
 
     for jj in range(0,idstotal[ii]):
-        f1 = open('script_total_aper_field'+str(int(all_fields[ii]))+'.'+str(jj)+'','w+')
+        f1 = open('script_total_aper_spb_field'+str(int(all_fields[ii]))+'.'+str(jj)+'','w+')
 
         f1.write('%1s%20s\n'%('#','!/home/ppzsb1/projects/OMEGA/py-omega/bin/python'))
         f1.write('%6s %5s % 2s %2s\n'%('import', 'numpy', 'as', 'np'))
@@ -27,6 +27,6 @@ for ii in range(0,len(all_fields)):
         f1.write('%30s %1s%1s%1s%1s\n'%('f0=np.loadtxt(filename0,dtype=',"'",'i',"'",')'))
         f1.write('%7s%i%1s\n'%('glx=f0[',jj,']'))
         f1.write('%5s %3s\n'%('print', 'glx'))
-        f1.write('%6s %20s\n'%('import','run_mcmc_pt_total_aper_all'))
-        f1.write('%39s%i%1s\n'%('run_mcmc_pt_total_aper_all.run_glx(glx,',all_fields[ii],')'))
+        f1.write('%6s %20s\n'%('import','run_mcmc_evidence'))
+        f1.write('run_mcmc_evidence.run_glx(glx, {}, {})'.format(all_fields[ii], 'total_aper'))
         f1.close()

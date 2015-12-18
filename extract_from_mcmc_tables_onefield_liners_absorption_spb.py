@@ -172,16 +172,16 @@ def in_field(field):
     for each in array:
         ### We try to open the tables of aper5 and total_aperture.
         try:
-            f5 = open_fits('aper5',each,field)
+            f5 = open_fits('aper5_spb',each,field)
             two = np.ones([1,2*len(f5)])
             ### We set to '-99' all the values for which we don't have a measurement.
             two = -99*two
             try:
-                open_fits('total_aper',each,field)
-                ft = open_fits('total_aper',each,field)
+                open_fits('total_aper_spb',each,field)
+                ft = open_fits('total_aper_spb',each,field)
                 two[:,0:len(f5)] = f5
                 two[:,len(f5):]=ft
-                f_handle = file('liners_catalogues_absorption/F'+str(field)+'_catalogue_hst_liners.txt','a')
+                f_handle = file('liners_catalogues_absorption_spb/F'+str(field)+'_catalogue_hst_liners.txt','a')
                 np.savetxt(f_handle,two,fmt=formato)
                 f_handle.close()
             except IOError:
@@ -189,7 +189,7 @@ def in_field(field):
                 two[:,0:len(f5)] = f5
                 ### Because there is no measurement using total aperture, we copy the values from the 5pixel aperture
                 two[:,len(f5):]=f5
-                f_handle = file('liners_catalogues_absorption/F'+str(field)+'_catalogue_hst_liners.txt','a')
+                f_handle = file('liners_catalogues_absorption_spb/F'+str(field)+'_catalogue_hst_liners.txt','a')
                 np.savetxt(f_handle,two,fmt=formato)
                 f_handle.close()
             except IndexError:
@@ -197,7 +197,7 @@ def in_field(field):
                 two[:,0:len(f5)] = f5
                 ### Because there is no measurement using total aperture, we copy the values from the 5pixel aperture
                 two[:,len(f5):]=f5
-                f_handle = file('liners_catalogues_absorption/F'+str(field)+'_catalogue_hst_liners.txt','a')
+                f_handle = file('liners_catalogues_absorption_spb/F'+str(field)+'_catalogue_hst_liners.txt','a')
                 np.savetxt(f_handle,two,fmt=formato)
                 f_handle.close()
 
@@ -205,12 +205,12 @@ def in_field(field):
             print 'Not in aper 5',each
 
             try:
-                open_fits('total_aper',each,field)
-                ft = open_fits('total_aper',each,field)
+                open_fits('total_aper_spb',each,field)
+                ft = open_fits('total_aper_spb',each,field)
                 two = np.ones([1,2*len(ft)])
                 two = -99*two
                 two[:,len(ft):]=ft
-                f_handle = file('liners_catalogues_absorption/F'+str(field)+'_catalogue_hst_liners.txt','a')
+                f_handle = file('liners_catalogues_absorption_spb/F'+str(field)+'_catalogue_hst_liners.txt','a')
                 np.savetxt(f_handle,two,fmt=formato)
                 f_handle.close()
 

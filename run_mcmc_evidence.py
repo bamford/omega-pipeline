@@ -89,9 +89,15 @@ def lnprior_hard_fixha(p, zmin, zmax):
         return 0.0
 
 
-def lnprior_soft_fixha(p, xmin, xmax, softbox):
+def lnprior_soft_fixha(p, xmin, xmax, ymin, ymax, softbox):
     continuum, redshift, fluxHa, fluxNII = p
-    lnprior = 0.0
+
+    # inherit proper continuum prior
+    lnprior = lnprior_flat(p, ymax)
+
+    # proper priors on flux of each line: very broad Gaussian
+    lnprior += np.log(gaussian(fluxHa, 1.0, ymax, 10*ymax))
+    lnprior += np.log(gaussian(fluxNII, 1.0, ymax, 10*ymax))
 
     # strongly penalise negative NII flux
     # by prob of exp(-1) for each 10**-17 of negative flux
@@ -113,6 +119,21 @@ def lnprior_soft_fixha(p, xmin, xmax, softbox):
     lnprior += np.where(NIIHa_check < 0, NIIHa_check/0.1, 0)
 
     return lnprior
+
+
+def lnprior_slope(p, xmin, xmax, ymin, ymax):
+    continuum, slope = p
+    # inherit proper continuum prior
+    lnprior = lnprior_flat(p, ymax)
+    # proper prior on continuum: very broad Gaussian
+    lnprior += np.log(gaussian(slope, 1.0, 0.0, (ymax - ymin) / (xmax - xmin)))
+    return lnprior
+
+
+def lnprior_flat(p, ymax):
+    continuum = p[0]
+    # proper prior on continuum: very broad Gaussian
+    return np.log(gaussian(continuum, 1.0, ymax, 10 * ymax))
 
 
 def lnprob_slope(p, y, x, icov, x0):
@@ -360,7 +381,6 @@ def run_glx(glx, field, aper):
     def logl(x):
         return lnprob_fixha(x, ymeans, xmeans, icov)
     def logp(x):
-        # PRIORS SHOULD BE PROPER AND CORRECTLY NORMALISED
         return lnprior_soft_fixha(x, xmin, xmax, softbox)
     ndim = p0.shape[-1]
     p0 = p0 * np.ones((ntemps, nwalkers, p0.shape[-1]))
@@ -372,9 +392,8 @@ def run_glx(glx, field, aper):
     x0 = xmeans.mean()
     def logl(x):
         return lnprob_slope(x, ymeans, xmeans, icov, x0)
-    def logp(x):  # Use a flat prior in level and sin(angle)
-        # PRIORS SHOULD BE PROPER AND CORRECTLY NORMALISED
-        return -1.5 * np.log(1 + x[1] ** 2)
+    def logp(x):
+        return lnprior_slope(x, xmin, xmax)
     ndim = p0.shape[-1]
     p0 = p0 * np.ones((ntemps, nwalkers, p0.shape[-1]))
     sampler_slope_pt = PTSampler(ntemps, nwalkers, ndim, logl, logp)
@@ -385,8 +404,7 @@ def run_glx(glx, field, aper):
     def logl(x):
         return lnprob_flat(x, ymeans, xmeans, icov)
     def logp(x):
-        # PRIORS SHOULD BE PROPER AND CORRECTLY NORMALISED
-        return 0.0
+        return lnprior_flat(x)
     ndim = p0.shape[-1]
     p0 = p0 * np.ones((ntemps, nwalkers, p0.shape[-1]))
     sampler_flat_pt = PTSampler(ntemps, nwalkers, ndim, logl, logp)
@@ -399,6 +417,8 @@ def run_glx(glx, field, aper):
     prob = lnprobability_without_burn(sampler_fixha_pt, nburn)
     likel = lnlikelihood_without_burn(sampler_fixha_pt, nburn)
 
+    # CHECK EVIDENCE IS ROBUST TO CHANGES IN PRIOR NORMALISATIONS
+    # AND CHANGES IN TEMPERATURE SCHEDULE
     evidence_fixha = sampler_fixha_pt.thermodynamic_integration_log_evidence()
     evidence_slope = sampler_slope_pt.thermodynamic_integration_log_evidence()
     evidence_flat = sampler_flat_pt.thermodynamic_integration_log_evidence()

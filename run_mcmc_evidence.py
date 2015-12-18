@@ -358,6 +358,7 @@ def run_glx(glx, field, aper):
 
     # slope
     p0 = init_p0_slope(xmin, xmax, ymin, ymax)
+    x0 = xmeans.mean()
     def logl(x):
         return lnprob_slope(x, ymeans, xmeans, icov, x0)
     def logp(x):  # Use a flat prior in level and sin(angle)

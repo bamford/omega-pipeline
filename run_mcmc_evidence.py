@@ -42,6 +42,7 @@ def softbox(x, low, high, edgelevel=0.9, cutoffwidth=None, cutofflevel=0.01):
     index = (np.log(np.log(cutofflevel)/np.log(edgelevel)) /
              np.log((halfwidth + cutoffwidth)/halfwidth))
     index = int(ceil(index))
+    print 'softbox index is', index
     if index%2 != 0:
         index += 1
     sigma = -(halfwidth)**index / np.log(edgelevel)
@@ -104,6 +105,18 @@ def lnprior_soft_fixha(p, xmin, xmax):
     lnprior += np.where(NIIHa_check < 0, NIIHa_check/0.1, 0)
 
     return lnprior
+
+
+def lnprob_slope(p, y, x, icov, x0):
+    model = slope_model(x, p, x0)
+    chisq = ((model - y)**2 * icov).sum()
+    return -chisq/2.0
+
+
+def lnprob_flat(p, y, x, icov):
+    model = flat_model(x, p)
+    chisq = ((model - y)**2 * icov).sum()
+    return -chisq/2.0
 
 
 def get_data(glx, field, aper):

@@ -107,6 +107,18 @@ def lnprior_soft_fixha(p, xmin, xmax):
     return lnprior
 
 
+def lnprob_slope(p, y, x, icov, x0):
+    model = slope_model(x, p, x0)
+    chisq = ((model - y)**2 * icov).sum()
+    return -chisq/2.0
+
+
+def lnprob_flat(p, y, x, icov):
+    model = flat_model(x, p)
+    chisq = ((model - y)**2 * icov).sum()
+    return -chisq/2.0
+
+
 def get_data(glx, field, aper):
     filetemplate=('../plot_aper/all_spectra_hst/'
                   'F{field}_spectrum_gal_{glx}_{aper}_hst.txt')

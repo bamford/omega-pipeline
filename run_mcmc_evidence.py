@@ -89,7 +89,7 @@ def lnprior_hard_fixha(p, zmin, zmax):
         return 0.0
 
 
-def lnprior_soft_fixha(p, xmin, xmax, ymin, ymax, softbox):
+def lnprior_soft_fixha(p, xmin, xmax, ymax, softbox):
     continuum, redshift, fluxHa, fluxNII = p
 
     # inherit proper continuum prior
@@ -381,7 +381,7 @@ def run_glx(glx, field, aper):
     def logl(x):
         return lnprob_fixha(x, ymeans, xmeans, icov)
     def logp(x):
-        return lnprior_soft_fixha(x, xmin, xmax, softbox)
+        return lnprior_soft_fixha(x, xmin, xmax, ymax, softbox)
     ndim = p0.shape[-1]
     p0 = p0 * np.ones((ntemps, nwalkers, p0.shape[-1]))
     sampler_fixha_pt = PTSampler(ntemps, nwalkers, ndim, logl, logp)
@@ -393,7 +393,7 @@ def run_glx(glx, field, aper):
     def logl(x):
         return lnprob_slope(x, ymeans, xmeans, icov, x0)
     def logp(x):
-        return lnprior_slope(x, xmin, xmax)
+        return lnprior_slope(x, xmin, xmax, ymin, ymax)
     ndim = p0.shape[-1]
     p0 = p0 * np.ones((ntemps, nwalkers, p0.shape[-1]))
     sampler_slope_pt = PTSampler(ntemps, nwalkers, ndim, logl, logp)
@@ -404,7 +404,7 @@ def run_glx(glx, field, aper):
     def logl(x):
         return lnprob_flat(x, ymeans, xmeans, icov)
     def logp(x):
-        return lnprior_flat(x)
+        return lnprior_flat(x, ymax)
     ndim = p0.shape[-1]
     p0 = p0 * np.ones((ntemps, nwalkers, p0.shape[-1]))
     sampler_flat_pt = PTSampler(ntemps, nwalkers, ndim, logl, logp)

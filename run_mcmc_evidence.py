@@ -281,7 +281,7 @@ def autocor_checks(sampler, aper, field, glx, label=''):
 
 
 def acc_frac_checks(sampler, aper, field, glx, label=''):
-    acc_frac = npmean(sampler.acceptance_fraction)
+    acc_frac = np.mean(sampler.acceptance_fraction)
     f1 = open((output_path + 'F{field}_gal_{label}_{glx}_acceptance_fractions.txt').format(
         aper=aper, field=field, glx=glx, label=label), 'a+')
     f1.write('%5i %.3f\n'%(glx, acc_frac))

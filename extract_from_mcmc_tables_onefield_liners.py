@@ -1,7 +1,7 @@
-#!/usr/bin/env /home/ppztw1/py-tim/bin/python
+#!/usr/bin/env /home/project/OMEGA/py-omega/bin/python
 ### In this script we take the information from the tables generated in the MCMC runs.
-### A catalogue will be created with the median, maximum-likelihood values and errors of the 
-### four parameters used in our model. In the cases where there is no measurement usign the 
+### A catalogue will be created with the median, maximum-likelihood values and errors of the
+### four parameters used in our model. In the cases where there is no measurement usign the
 ### total aperture we copy the values obtained for the aperture of five pixels.
 
 import pyfits
@@ -11,7 +11,7 @@ import os
 import math
 
 def open_fits(aperture,glx,field):
-    
+
     ### Open table aper 5
     hdu_list = pyfits.open('galaxy_pages_'+str(aperture)+'/F'+str(field)+'/table_'+str(glx)+'.fits')
     #hdu_list = pyfits.open('galaxy_pages_'+str(aperture)+'/plot_aper_web/table_'+str(glx)+'.fits')
@@ -33,9 +33,9 @@ def open_fits(aperture,glx,field):
     flux_ha = np.array(table_data.field('flux Ha'))
     flux_nii = np.array(table_data.field('flux NII'))
     lnprob = np.array(table_data.field('Probability'))
-        
+
     max_prob = np.where(lnprob == max(lnprob))[0][0]
-    
+
     prob_posi_ew = stats.percentileofscore(flux_ha/continuum,0,'weak')
 
     prob_agn_lineratio = stats.percentileofscore(flux_nii/flux_ha,10**(-0.4),'weak')
@@ -73,12 +73,12 @@ def open_fits(aperture,glx,field):
     rel_error_z_median = (z_highper - z_lowper)/2
     rel_error_fha_median = (fha_highper - fha_lowper)/(2*fha_median)
     rel_error_fnii_median = (fnii_highper - fnii_lowper)/(2*fnii_median)
-    
+
     rel_error_cont_maxlik = (cont_highper - cont_lowper)/(2*cont_maxprob)
     rel_error_z_maxlik = (z_highper - z_lowper)/2
     rel_error_fha_maxlik = (fha_highper - fha_lowper)/(2*fha_maxprob)
     rel_error_fnii_maxlik = (fnii_highper - fnii_lowper)/(2*fnii_maxprob)
-        
+
     ewha_median = fha_median/cont_median
     error_ewha_median = math.sqrt((rel_error_fha_median*fha_median/cont_median)**2 + (fha_median*rel_error_cont_median*cont_median/(cont_median**2))**2)
 
@@ -91,7 +91,7 @@ def open_fits(aperture,glx,field):
     lineratio_maxlik = fnii_maxprob/fha_maxprob
     error_lineratio_maxlik = math.sqrt((rel_error_fnii_maxlik*fnii_maxprob/fha_maxprob)**2 + (fnii_maxprob*rel_error_fha_maxlik*fha_maxprob/(fha_maxprob**2))**2)
 
-    
+
     ### Number of points to calculate reduced chi-square
     #filename='../plot_aper/F'+str(field)+'/F'+str(field)+'_spectrum_gal_'+str(glx)+'_'+str(aperture)+'.txt'
     filename='../plot_aper/all_spectra_hst/F'+str(field)+'_spectrum_gal_'+str(glx)+'_'+str(aperture)+'_hst.txt'
@@ -113,11 +113,11 @@ def open_fits(aperture,glx,field):
     if ((1+z_median)*6583.5 < lambdamax - 3.75)&((1+z_median)*6562.8 > lambdamin +3.75):
        twolines = 1
     else:
-       twolines = 0 
+       twolines = 0
     if ((1+z_median)*6562.8 < lambdamax - 3.75)&((1+z_median)*6562.8 > lambdamin +3.75):
        oneline = 1
     else:
-       oneline = 0 
+       oneline = 0
 
 
 
@@ -137,7 +137,7 @@ def in_field(field):
     #for ii in range(0,1):
     #    each = array[ii]
     for each in array:
-        ### We try to open the tables of aper5 and total_aperture. 
+        ### We try to open the tables of aper5 and total_aperture.
         try:
             f5 = open_fits('aper5',each,field)
             print 'opened fits aper5'
@@ -179,7 +179,7 @@ def in_field(field):
                 ft = open_fits('total_aper',each,field)
                 two = np.ones([1,2*len(ft)])
                 two = -99*two
-                two[:,len(ft):]=ft 
+                two[:,len(ft):]=ft
                 f_handle = file('liners_catalogues/F'+str(field)+'_catalogue_hst_liners.txt','a')
                 np.savetxt(f_handle,two,fmt=formato)
                 f_handle.close()
@@ -187,4 +187,4 @@ def in_field(field):
             except IOError:
                 print 'IOError: Not in any aperture', each
             except IndexError:
-                print 'IndexError: Not in any aperture', each            
+                print 'IndexError: Not in any aperture', each

@@ -1,5 +1,4 @@
 #!/usr/bin/env /home/project/OMEGA/py-omega/bin/python
-
 ### In this script we take the information from the tables generated in the MCMC runs.
 ### A catalogue will be created with the median, maximum-likelihood values and errors of the
 ### four parameters used in our model. In the cases where there is no measurement usign the
@@ -13,8 +12,6 @@ import math
 
 def open_fits(aperture,glx,field):
 
-
-    ####OPENING FITS!
     ### Open table aper 5
     hdu_list = pyfits.open('galaxy_pages_'+str(aperture)+'/F'+str(field)+'/table_'+str(glx)+'.fits')
     #hdu_list = pyfits.open('galaxy_pages_'+str(aperture)+'/plot_aper_web/table_'+str(glx)+'.fits')
@@ -33,39 +30,9 @@ def open_fits(aperture,glx,field):
     ### or:
     continuum = np.array(table_data.field('continuum'))
     redshift = np.array(table_data.field('redshift'))
-    flux_ha_noncorrectedforabsorption = np.array(table_data.field('flux Ha'))
+    flux_ha = np.array(table_data.field('flux Ha'))
     flux_nii = np.array(table_data.field('flux NII'))
     lnprob = np.array(table_data.field('Probability'))
-
-    ###Gradual absorption!
-
-    ###Here we introduce the correction from the underlying stellar population. These absorption
-    ###might reduce the equivalent width of the Halpha line and we should take into account.
-    ###We do it by estimating an absoprtion for a given SED type age, which is given in the
-    ### main STAGES catalogue mc_age. Here we read the file with the number and mc_age of all the
-    ### objects contained in our observations.
-
-    combo_id, mc_age = np.loadtxt('mc_age.txt',unpack=True)
-
-    ###From what was suggested by Chris, a given SED type has the following associated absorption.
-    def gradual_absorption(age):
-        mc_ages =       np.array([20.0,30.0,35.0,40.0,45.0,50.0,55.0])
-        ha_absorption = np.array([6.0, 5.7, 5.0, 3.8, 3.4, 2.6, 2.2])
-
-        absorptions = np.zeros(len(age))
-        for ii in range(0,len(age)):
-            if age[ii] < 20: absorptions[ii] = 6.0
-            elif age[ii] > 55: absorptions[ii] = 0
-            else: absorptions[ii] = np.interp(age[ii],mc_ages,ha_absorption)
-        return absorptions
-
-    ###Applying now the correction for absorption
-    sed_age = mc_age[combo_id == glx]
-    absorption_haflux = gradual_absorption(sed_age) * continuum
-    flux_ha = flux_ha_noncorrectedforabsorption + absorption_haflux
-
-
-
 
     max_prob = np.where(lnprob == max(lnprob))[0][0]
 
@@ -172,49 +139,52 @@ def in_field(field):
     for each in array:
         ### We try to open the tables of aper5 and total_aperture.
         try:
-            f5 = open_fits('aper5',each,field)
+            f5 = open_fits('aper5_spb',each,field)
+            print 'opened fits aper5_spb'
             two = np.ones([1,2*len(f5)])
             ### We set to '-99' all the values for which we don't have a measurement.
             two = -99*two
             try:
-                open_fits('total_aper',each,field)
-                ft = open_fits('total_aper',each,field)
+                open_fits('total_aper_spb',each,field)
+                print 'opened fits total_aper_spb'
+                ft = open_fits('total_aper_spb',each,field)
                 two[:,0:len(f5)] = f5
                 two[:,len(f5):]=ft
-                f_handle = file('liners_catalogues_absorption/F'+str(field)+'_catalogue_hst_liners.txt','a')
+                f_handle = file('liners_catalogues_spb/F'+str(field)+'_catalogue_hst_liners.txt','a')
                 np.savetxt(f_handle,two,fmt=formato)
                 f_handle.close()
             except IOError:
-                print 'Not in total aper',each
+                print 'IOError: Not in total aper',each
                 two[:,0:len(f5)] = f5
                 ### Because there is no measurement using total aperture, we copy the values from the 5pixel aperture
                 two[:,len(f5):]=f5
-                f_handle = file('liners_catalogues_absorption/F'+str(field)+'_catalogue_hst_liners.txt','a')
+                f_handle = file('liners_catalogues_spb/F'+str(field)+'_catalogue_hst_liners.txt','a')
                 np.savetxt(f_handle,two,fmt=formato)
                 f_handle.close()
             except IndexError:
-                print 'Not in total aper',each
+                print 'IndexError: Not in total aper',each
                 two[:,0:len(f5)] = f5
                 ### Because there is no measurement using total aperture, we copy the values from the 5pixel aperture
                 two[:,len(f5):]=f5
-                f_handle = file('liners_catalogues_absorption/F'+str(field)+'_catalogue_hst_liners.txt','a')
+                f_handle = file('liners_catalogues_spb/F'+str(field)+'_catalogue_hst_liners.txt','a')
                 np.savetxt(f_handle,two,fmt=formato)
                 f_handle.close()
 
         except IOError:
-            print 'Not in aper 5',each
+            print 'IOError: Not in aper 5',each
 
             try:
-                open_fits('total_aper',each,field)
-                ft = open_fits('total_aper',each,field)
+                open_fits('total_aper_spb',each,field)
+                print 'opened fits total_aper_spb'
+                ft = open_fits('total_aper_spb',each,field)
                 two = np.ones([1,2*len(ft)])
                 two = -99*two
                 two[:,len(ft):]=ft
-                f_handle = file('liners_catalogues_absorption/F'+str(field)+'_catalogue_hst_liners.txt','a')
+                f_handle = file('liners_catalogues_spb/F'+str(field)+'_catalogue_hst_liners.txt','a')
                 np.savetxt(f_handle,two,fmt=formato)
                 f_handle.close()
 
             except IOError:
-                print 'Not in any aperture', each
+                print 'IOError: Not in any aperture', each
             except IndexError:
-                print 'Not in any aperture', each
+                print 'IndexError: Not in any aperture', each

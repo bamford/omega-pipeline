@@ -1,6 +1,6 @@
 #!/usr/bin/env /home/project/OMEGA/py-omega/bin/python
 
-import extract_from_mcmc_tables_onefield_liners
+import extract_from_mcmc_tables_onefield_liners_spb as extract_from_mcmc_tables_onefield_liners
 
 extract_from_mcmc_tables_onefield_liners.in_field(2)
 extract_from_mcmc_tables_onefield_liners.in_field(3)
@@ -23,7 +23,7 @@ extract_from_mcmc_tables_onefield_liners.in_field(20)
 extract_from_mcmc_tables_onefield_liners.in_field(21)
 extract_from_mcmc_tables_onefield_liners.in_field(22)
 
-import extract_from_mcmc_tables_onefield_liners_absorption
+import extract_from_mcmc_tables_onefield_liners_absorption_spb as extract_from_mcmc_tables_onefield_liners_absorption
 
 extract_from_mcmc_tables_onefield_liners_absorption.in_field(2)
 extract_from_mcmc_tables_onefield_liners_absorption.in_field(3)

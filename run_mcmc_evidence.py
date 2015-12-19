@@ -343,7 +343,8 @@ def plot_hist(sampler, par, aper, field, glx, label=''):
         aper=aper, field=field, glx=glx, label=label))
 
 
-def plot_func(sampler, model, aper, field, glx, label='', model_pars=[]):
+def plot_func(sampler, model, aper, field, glx,
+              xmin, xmax, xmeans, ymeans, error_flux, label='', model_pars=[]):
     xchain = np.arange(xmin, xmax, 1.0)
     ychain = [model(xchain, p, *model_pars) for p in flatten_without_burn(sampler, nburn)]
 
@@ -357,7 +358,8 @@ def plot_func(sampler, model, aper, field, glx, label='', model_pars=[]):
         aper=aper, field=field, glx=glx, label=label))
 
 
-def plot_triangle(sampler, par, model, aper, field, glx, label='', model_pars=[]):
+def plot_triangle(sampler, par, model, aper, field, glx,
+                  xmin, xmax, xmeans, ymeans, error_flux, label='', model_pars=[]):
     xchain = np.arange(xmin, xmax, 1.0)
     ychain = [model(xchain, p, *model_pars) for p in flatten_without_burn(sampler, nburn)]
     triangle.corner(flatten_without_burn(sampler, nburn), labels=par)
@@ -450,9 +452,14 @@ def run_glx(glx, field, aper):
     plot_hist(sampler_slope_pt, par_slope, aper, field, glx, label='slope')
     plot_hist(sampler_flat_pt, par_flat, aper, field, glx, label='flat')
 
-    plot_func(sampler_fixha_pt, fixha_model, aper, field, glx, label='fixha')
-    plot_func(sampler_slope_pt, slope_model, aper, field, glx, label='slope', model_pars=[x0])
-    plot_func(sampler_flat_pt, flat_model, aper, field, glx, label='flat')
+    plot_func(sampler_fixha_pt, fixha_model, aper, field, glx,
+              xmin, xmax, xmeans, ymeans, error_flux, label='fixha')
+    plot_func(sampler_slope_pt, slope_model, aper, field, glx,
+              xmin, xmax, xmeans, ymeans, error_flux, label='slope', model_pars=[x0])
+    plot_func(sampler_flat_pt, flat_model, aper, field, glx,
+              xmin, xmax, xmeans, ymeans, error_flux, label='flat')
 
-    plot_triangle(sampler_fixha_pt, par_fixha, fixha_model, aper, field, glx, label='fixha')
-    plot_triangle(sampler_slope_pt, par_slope, slope_model, aper, field, glx, label='slope', model_pars=[x0])
+    plot_triangle(sampler_fixha_pt, par_fixha, fixha_model, aper, field, glx,
+                  xmin, xmax, xmeans, ymeans, error_flux, label='fixha')
+    plot_triangle(sampler_slope_pt, par_slope, slope_model, aper, field, glx,
+                  xmin, xmax, xmeans, ymeans, error_flux, label='slope', model_pars=[x0])

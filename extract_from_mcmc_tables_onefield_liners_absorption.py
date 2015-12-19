@@ -1,4 +1,4 @@
-#!/usr/bin/env /home/ppzsb1/project/OMEGA/py-omega/bin/python
+#!/usr/bin/env /home/ppzsb1/projects/OMEGA/py-omega/bin/python
 
 ### In this script we take the information from the tables generated in the MCMC runs.
 ### A catalogue will be created with the median, maximum-likelihood values and errors of the

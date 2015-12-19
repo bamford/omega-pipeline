@@ -419,6 +419,7 @@ def run_glx(glx, field, aper):
         a_exp, a_int = autocor_checks(sampler_fixha_pt, aper, field, glx, 'fixha')
 
         # Collect more samples if necessary
+        p0 = None
         if a_exp > nburn/10.0:
             nsamples = nburn
             nburn *= 2

@@ -6,7 +6,7 @@ from math import sqrt, pi, ceil
 from matplotlib import pyplot as plt
 from emcee import PTSampler
 from astropy.io import fits as pyfits
-import triangle
+import corner
 
 wlHa = 6562.8
 wlNIIa = 6548.1
@@ -363,7 +363,7 @@ def plot_triangle(sampler, par, model, aper, field, glx,
                   xmin, xmax, xmeans, ymeans, error_flux, label='', model_pars=[]):
     xchain = np.arange(xmin, xmax, 1.0)
     ychain = [model(xchain, p, *model_pars) for p in flatten_without_burn(sampler, nburn)]
-    triangle.corner(flatten_without_burn(sampler, nburn), labels=par)
+    corner.corner(flatten_without_burn(sampler, nburn), labels=par)
     plt.subplot(2, 2, 2)
     for y in ychain[::100]:
         plt.plot(xchain, y, 'r-', alpha=0.01)

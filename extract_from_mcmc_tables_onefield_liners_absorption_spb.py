@@ -152,12 +152,10 @@ def open_fits(aperture,glx,field):
     else:
        oneline = 0
 
+    hdr = hdu_list[0].header
 
-
-
-
-    return  int(glx), 100 - prob_posi_ew,prob_strong_agn,prob_sf,prob_retired,prob_weak_agn, cont_maxprob, cont_median,rel_error_cont_median,rel_error_cont_maxlik, z_maxprob, z_median,rel_error_z_median, fha_maxprob, fha_median,rel_error_fha_median, rel_error_fha_maxlik,lha_median, fnii_maxprob, fnii_median,rel_error_fnii_median,rel_error_fnii_maxlik, ewha_median,ewha_maxlik,error_ewha_median,error_ewha_maxlik,lineratio_median,lineratio_maxlik,error_lineratio_median,error_lineratio_maxlik, chisq,twolines,oneline
-formato = ('%5i %.5f %.5f %.5f %.5f %.5f %.5g %.5g %.5g %.5g %.5g %.5g %.5g  %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g  %.5g %.5g %5i %.5f %.5f %.5f %.5f %.5f %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g  %.5g %.5g')
+    return  int(glx), 100 - prob_posi_ew,prob_strong_agn,prob_sf,prob_retired,prob_weak_agn, cont_maxprob, cont_median,rel_error_cont_median,rel_error_cont_maxlik, z_maxprob, z_median,rel_error_z_median, fha_maxprob, fha_median,rel_error_fha_median, rel_error_fha_maxlik,lha_median, fnii_maxprob, fnii_median,rel_error_fnii_median,rel_error_fnii_maxlik, ewha_median,ewha_maxlik,error_ewha_median,error_ewha_maxlik,lineratio_median,lineratio_maxlik,error_lineratio_median,error_lineratio_maxlik, chisq,twolines,oneline, hdr['A_EXP'], hdr['A_INT'], hdr['ACC_FRAC'], hdr['EV_FIXHA'], hdr['EV_SLOPE'], hdr['EV_FLAT']
+formato = ('%5i %.5f %.5f %.5f %.5f %.5f %.5g %.5g %.5g %.5g %.5g %.5g %.5g  %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g  %.5g %.5g  %.5g %.5g  %.5g  %.5g %.5g %.5g %5i %.5f %.5f %.5f %.5f %.5f %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g  %.5g %.5g  %.5g %.5g  %.5g  %.5g %.5g %.5g')
 #print len(formato)
 
 

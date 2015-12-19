@@ -387,7 +387,6 @@ def run_glx(glx, field, aper):
     ndim = p0.shape[-1]
     p0 = p0 * np.ones((ntemps, nwalkers, p0.shape[-1]))
     sampler_fixha_pt = PTSampler(ntemps, nwalkers, ndim, logl, logp)
-    r_fixha_pt = sampler_fixha_pt.run_mcmc(p0, nburn+nsamp)
 
     # slope
     p0 = init_p0_slope(xmin, xmax, ymin, ymax)
@@ -399,7 +398,6 @@ def run_glx(glx, field, aper):
     ndim = p0.shape[-1]
     p0 = p0 * np.ones((ntemps, nwalkers, p0.shape[-1]))
     sampler_slope_pt = PTSampler(ntemps, nwalkers, ndim, logl, logp)
-    r_slope_pt = sampler_slope_pt.run_mcmc(p0, nburn+nsamp)
 
     # flat
     p0 = init_p0_flat(ymin, ymax)
@@ -410,9 +408,27 @@ def run_glx(glx, field, aper):
     ndim = p0.shape[-1]
     p0 = p0 * np.ones((ntemps, nwalkers, p0.shape[-1]))
     sampler_flat_pt = PTSampler(ntemps, nwalkers, ndim, logl, logp)
-    r_flat_pt = sampler_flat_pt.run_mcmc(p0, nburn+nsamp)
 
-    a_exp, a_int = autocor_checks(sampler_fixha_pt, aper, field, glx, 'fixha')
+    nsamples = nburn+nsamp
+    while True:
+        r_fixha_pt = sampler_fixha_pt.run_mcmc(p0, nsamples)
+        r_slope_pt = sampler_slope_pt.run_mcmc(p0, nsamples)
+        r_flat_pt = sampler_flat_pt.run_mcmc(p0, nsamples)
+
+        a_exp, a_int = autocor_checks(sampler_fixha_pt, aper, field, glx, 'fixha')
+
+        # Collect more samples if necessary
+        if a_exp > nburn/10.0:
+            nsamples = nburn
+            nburn *= 2
+            print 'Extending nburn to', nburn
+        elif a_int > nsamp/100.0:
+            nsamples = nsamp
+            nsamp *= 2
+            print 'Extending nsamp to', nsamp
+        else:
+            break
+
     acc_frac = acc_frac_checks(sampler_fixha_pt, aper, field, glx, 'fixha')
 
     flattable = flatten_without_burn(sampler_fixha_pt, nburn)

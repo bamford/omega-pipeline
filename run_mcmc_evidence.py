@@ -16,7 +16,7 @@ par_fixha = ['continuum', 'redshift', 'flux Ha', 'flux NII']
 par_slope = ['continuum', 'slope']
 par_flat = ['continuum']
 
-nwalkers = 300
+nwalkers = 100
 nburn = 500
 nsamp = 500
 
@@ -419,6 +419,8 @@ def run_glx(glx, field, aper):
 
         a_exp, a_int = autocor_checks(sampler_fixha_pt, aper, field, glx, nburn, 'fixha')
 
+        # DISABLE ITERATING FOR NOW
+        break
         # Collect more samples if necessary
         p0_fixha = p0_slope = p0_flat = None
         if a_exp > nburn/10.0:

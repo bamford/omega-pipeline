@@ -233,7 +233,7 @@ def lnlikelihood_without_burn(sampler, nburn):
     return w / w.sum()
 
 
-def autocor_checks(sampler, aper, field, glx, label=''):
+def autocor_checks(sampler, aper, field, glx, nburn, label=''):
     a_exp = sampler.acor[0]
     a_int = np.max([emcee.autocorr.integrated_time(sampler.chain[0, i, nburn:])
                     for i in range(len(sampler.chain[0]))], 0)
@@ -279,6 +279,7 @@ def autocor_checks(sampler, aper, field, glx, label=''):
     B_over_q_each = []
     W_each = []
 
+    # I SUSPECT THIS IS SLOW - ISN'T THERE A BETTER WAY?
     for qq in range(0,nsamp):
         for ll in range(0,nwalkers):
 
@@ -416,10 +417,10 @@ def run_glx(glx, field, aper):
         r_slope_pt = sampler_slope_pt.run_mcmc(p0_slope, nsamples)
         r_flat_pt = sampler_flat_pt.run_mcmc(p0_flat, nsamples)
 
-        a_exp, a_int = autocor_checks(sampler_fixha_pt, aper, field, glx, 'fixha')
+        a_exp, a_int = autocor_checks(sampler_fixha_pt, aper, field, glx, nburn, 'fixha')
 
         # Collect more samples if necessary
-        p0 = None
+        p0_fixha = p0_slope = p0_flat = None
         if a_exp > nburn/10.0:
             nsamples = nburn
             nburn *= 2

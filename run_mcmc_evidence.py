@@ -381,40 +381,40 @@ def run_glx(glx, field, aper):
     p0 = init_p0_fixha(ymin, ymax, zmin, zmax)
     softbox = Softbox(zmin, zmax, cutoffwidth=21/wlHa)
 
-    def logl(x):
+    def logl_fixha(x):
         return lnprob_fixha(x, ymeans, xmeans, icov)
-    def logp(x):
+    def logp_fixha(x):
         return lnprior_soft_fixha(x, xmin, xmax, ymax, softbox)
     ndim = p0.shape[-1]
-    p0 = p0 * np.ones((ntemps, nwalkers, p0.shape[-1]))
-    sampler_fixha_pt = PTSampler(ntemps, nwalkers, ndim, logl, logp)
+    p0_fixha = p0 * np.ones((ntemps, nwalkers, p0.shape[-1]))
+    sampler_fixha_pt = PTSampler(ntemps, nwalkers, ndim, logl_fixha, logp_fixha)
 
     # slope
     p0 = init_p0_slope(xmin, xmax, ymin, ymax)
     x0 = xmeans.mean()
-    def logl(x):
+    def logl_slope(x):
         return lnprob_slope(x, ymeans, xmeans, icov, x0)
-    def logp(x):
+    def logp_slope(x):
         return lnprior_slope(x, xmin, xmax, ymin, ymax)
     ndim = p0.shape[-1]
-    p0 = p0 * np.ones((ntemps, nwalkers, p0.shape[-1]))
-    sampler_slope_pt = PTSampler(ntemps, nwalkers, ndim, logl, logp)
+    p0_slope = p0 * np.ones((ntemps, nwalkers, p0.shape[-1]))
+    sampler_slope_pt = PTSampler(ntemps, nwalkers, ndim, logl_slope, logp_slope)
 
     # flat
     p0 = init_p0_flat(ymin, ymax)
-    def logl(x):
+    def logl_flat(x):
         return lnprob_flat(x, ymeans, xmeans, icov)
-    def logp(x):
+    def logp_flat(x):
         return lnprior_flat(x, ymax)
     ndim = p0.shape[-1]
-    p0 = p0 * np.ones((ntemps, nwalkers, p0.shape[-1]))
-    sampler_flat_pt = PTSampler(ntemps, nwalkers, ndim, logl, logp)
+    p0_flat = p0 * np.ones((ntemps, nwalkers, p0.shape[-1]))
+    sampler_flat_pt = PTSampler(ntemps, nwalkers, ndim, logl_flat, logp_flat)
 
     nsamples = nburn+nsamp
     while True:
-        r_fixha_pt = sampler_fixha_pt.run_mcmc(p0, nsamples)
-        r_slope_pt = sampler_slope_pt.run_mcmc(p0, nsamples)
-        r_flat_pt = sampler_flat_pt.run_mcmc(p0, nsamples)
+        r_fixha_pt = sampler_fixha_pt.run_mcmc(p0_fixha, nsamples)
+        r_slope_pt = sampler_slope_pt.run_mcmc(p0_slope, nsamples)
+        r_flat_pt = sampler_flat_pt.run_mcmc(p0_flat, nsamples)
 
         a_exp, a_int = autocor_checks(sampler_fixha_pt, aper, field, glx, 'fixha')
 

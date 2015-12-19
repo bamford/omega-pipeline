@@ -17,8 +17,8 @@ par_slope = ['continuum', 'slope']
 par_flat = ['continuum']
 
 nwalkers = 100
-nburn = 500
-nsamp = 500
+nburn = 1000
+nsamp = 1000
 
 output_path = '../mcmc_fits/galaxy_pages_{aper}_spb/F{field}/'
 
@@ -317,6 +317,7 @@ def acc_frac_checks(sampler, aper, field, glx, label=''):
     f1.write('%5i %.3f\n'%(glx, acc_frac))
     f1.close()
     print("Mean acceptance fraction: {0:.3f}".format(acc_frac))
+    return acc_frac
 
 
 def plot_chain(sampler, par, aper, field, glx, label=''):

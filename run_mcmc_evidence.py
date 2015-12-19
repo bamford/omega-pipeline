@@ -324,7 +324,7 @@ def plot_chain(sampler, par, aper, field, glx, label=''):
         plt.subplot(2,2,i+1)
         for t in [0]: #range(ntemps):
             for w in range(nwalkers):
-                plt.plot(numpy.arange(len(sampler.chain[t,0,:,0])), sampler.chain[t,w,:,i], 'r-', alpha=0.1)
+                plt.plot(np.arange(len(sampler.chain[t,0,:,0])), sampler.chain[t,w,:,i], 'r-', alpha=0.1)
         plt.xlabel(p)
         aymin, aymax = plt.ylim()
         plt.vlines(nburn, aymin, aymax, linestyle=':')

@@ -140,13 +140,11 @@ def in_field(field):
         ### We try to open the tables of aper5 and total_aperture.
         try:
             f5 = open_fits('aper5',each,field)
-            print 'opened fits aper5'
             two = np.ones([1,2*len(f5)])
             ### We set to '-99' all the values for which we don't have a measurement.
             two = -99*two
             try:
                 open_fits('total_aper',each,field)
-                print 'opened fits total_aper'
                 ft = open_fits('total_aper',each,field)
                 two[:,0:len(f5)] = f5
                 two[:,len(f5):]=ft
@@ -175,7 +173,6 @@ def in_field(field):
 
             try:
                 open_fits('total_aper',each,field)
-                print 'opened fits total_aper'
                 ft = open_fits('total_aper',each,field)
                 two = np.ones([1,2*len(ft)])
                 two = -99*two

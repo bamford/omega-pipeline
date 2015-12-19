@@ -16,7 +16,6 @@ def open_fits(aperture,glx,field):
     hdu_list = pyfits.open('galaxy_pages_'+str(aperture)+'/F'+str(field)+'/table_'+str(glx)+'.fits')
     #hdu_list = pyfits.open('galaxy_pages_'+str(aperture)+'/plot_aper_web/table_'+str(glx)+'.fits')
 
-
     ### Accesing the data table:
     table_hdu = hdu_list[1]
     ### Header of the table:
@@ -119,12 +118,10 @@ def open_fits(aperture,glx,field):
     else:
        oneline = 0
 
+    hdr = hdu_list[0].header
 
-
-
-
-    return  int(glx), 100 - prob_posi_ew,prob_strong_agn,prob_sf,prob_retired,prob_weak_agn, cont_maxprob, cont_median,rel_error_cont_median,rel_error_cont_maxlik, z_maxprob, z_median,rel_error_z_median, fha_maxprob, fha_median,rel_error_fha_median, rel_error_fha_maxlik,lha_median, fnii_maxprob, fnii_median,rel_error_fnii_median,rel_error_fnii_maxlik, ewha_median,ewha_maxlik,error_ewha_median,error_ewha_maxlik,lineratio_median,lineratio_maxlik,error_lineratio_median,error_lineratio_maxlik, chisq,twolines,oneline
-formato = ('%5i %.5f %.5f %.5f %.5f %.5f %.5g %.5g %.5g %.5g %.5g %.5g %.5g  %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g  %.5g %.5g %5i %.5f %.5f %.5f %.5f %.5f %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g  %.5g %.5g')
+    return  int(glx), 100 - prob_posi_ew,prob_strong_agn,prob_sf,prob_retired,prob_weak_agn, cont_maxprob, cont_median,rel_error_cont_median,rel_error_cont_maxlik, z_maxprob, z_median,rel_error_z_median, fha_maxprob, fha_median,rel_error_fha_median, rel_error_fha_maxlik,lha_median, fnii_maxprob, fnii_median,rel_error_fnii_median,rel_error_fnii_maxlik, ewha_median,ewha_maxlik,error_ewha_median,error_ewha_maxlik,lineratio_median,lineratio_maxlik,error_lineratio_median,error_lineratio_maxlik, chisq,twolines,oneline, hdr['A_EXP'], hdr['A_INT'], hdr['ACC_FRAC'], hdr['EV_FIXHA'], hdr['EV_SLOPE'], hdr['EV_FLAT']
+formato = ('%5i %.5f %.5f %.5f %.5f %.5f %.5g %.5g %.5g %.5g %.5g %.5g %.5g  %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g  %.5g %.5g  %.5g %.5g  %.5g  %.5g %.5g %.5g %5i %.5f %.5f %.5f %.5f %.5f %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g %.5g  %.5g %.5g  %.5g %.5g  %.5g  %.5g %.5g %.5g')
 #print len(formato)
 
 
@@ -140,13 +137,11 @@ def in_field(field):
         ### We try to open the tables of aper5 and total_aperture.
         try:
             f5 = open_fits('aper5_spb',each,field)
-            print 'opened fits aper5_spb'
             two = np.ones([1,2*len(f5)])
             ### We set to '-99' all the values for which we don't have a measurement.
             two = -99*two
             try:
                 open_fits('total_aper_spb',each,field)
-                print 'opened fits total_aper_spb'
                 ft = open_fits('total_aper_spb',each,field)
                 two[:,0:len(f5)] = f5
                 two[:,len(f5):]=ft
@@ -175,7 +170,6 @@ def in_field(field):
 
             try:
                 open_fits('total_aper_spb',each,field)
-                print 'opened fits total_aper_spb'
                 ft = open_fits('total_aper_spb',each,field)
                 two = np.ones([1,2*len(ft)])
                 two = -99*two

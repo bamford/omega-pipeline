@@ -1,4 +1,4 @@
-#!/usr/bin/env /home/project/OMEGA/py-omega/bin/python
+#!/usr/bin/env /home/ppzsb1/project/OMEGA/py-omega/bin/python
 
 import extract_from_mcmc_tables_onefield_liners
 

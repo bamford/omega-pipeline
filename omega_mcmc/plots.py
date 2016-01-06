@@ -94,7 +94,7 @@ def plot_func(sampler, model, xmin, xmax, xdata, ydata, yerror,
 
 
 def plot_triangle(samples, par, model, xdata, ydata, yerror,
-                  xlabel='', ylabel='', weights=None
+                  xlabel='', ylabel='', weights=None,
                   itemp=0, outfile=None, model_pars=[]):
     if len(par) == 1:
         plt.figure(figsize=(10, 5))

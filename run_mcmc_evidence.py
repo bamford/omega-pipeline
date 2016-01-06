@@ -10,12 +10,12 @@ from omega_mcmc.omega_init_pars import create_init_pars
 from omega_mcmc.run_fit import run_fixha, run_line, run_flat
 
 
-run_emcee_conf = dict(ntemps=0,  # use cunning ladder
+run_emcee_conf = dict(ntemps=50,  # 0 to use cunning ladder
                       nwalkers=50,
                       nsamples=1500,
                       nupdates=10,
                       nburn=500,
-                      minlogbeta=None,
+                      minlogbeta=-16,
                       xlabel='wavelength',
                       ylabel='flux')
 

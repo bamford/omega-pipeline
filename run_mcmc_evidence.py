@@ -57,15 +57,21 @@ def run_glx(glx, field, aper):
         label=(output_path + '{glx}').format(
             aper=aper, field=field, glx=glx))
 
+    run_emcee_conf_line = run_emcee_conf.copy()
+    run_emcee_conf_line['nburn'] /= 2
+    run_emcee_conf_line['nsamples'] = run_emcee_conf_line['nburn'] + 1000
     sampler_line, stats_line = run_line(
         x, y, yerror, lnpriors, init_pars,
-        run_emcee_conf=run_emcee_conf,
+        run_emcee_conf=run_emcee_conf_line,
         label=(output_path + '{glx}').format(
             aper=aper, field=field, glx=glx))
 
+    run_emcee_conf_flat = run_emcee_conf.copy()
+    run_emcee_conf_flat['nburn'] /= 4
+    run_emcee_conf_flat['nsamples'] = run_emcee_conf_flat['nburn'] + 1000
     sampler_flat, stats_flat = run_flat(
         x, y, yerror, lnpriors, init_pars,
-        run_emcee_conf=run_emcee_conf,
+        run_emcee_conf=run_emcee_conf_flat,
         label=(output_path + '{glx}').format(
             aper=aper, field=field, glx=glx))
 

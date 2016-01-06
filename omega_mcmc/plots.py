@@ -248,6 +248,7 @@ def print_emcee(sampler, par, model, x, y, yerror, nburn,
                       xlabel, ylabel)
         page()
         itemp50, itemp90 = check_betas(sampler, nburn)
+        stats.update(itemp50=itemp50, itemp90=itemp90)
         page()
         # ntemp = sampler.chain.shape[0]
         for itemp in (0, itemp50, itemp90):

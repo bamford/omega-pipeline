@@ -96,6 +96,8 @@ def run_glx(glx, field, aper):
     phdu.header['ZE_LINE'] = stats_line['logzerr']
     phdu.header['Z_FLAT'] = stats_flat['logz']
     phdu.header['ZE_FLAT'] = stats_flat['logzerr']
+    phdu.header['ITEMP50'] = stats_fixha['itemp50']
+    phdu.header['ITEMP90'] = stats_fixha['itemp90']
     hdulist = pyfits.HDUList([phdu, tbhdu])
     hdulist.writeto((output_path + 'table_{glx}.fits').format(
         aper=aper, field=field, glx=glx))

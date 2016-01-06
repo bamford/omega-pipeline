@@ -21,6 +21,7 @@ run_emcee_conf = dict(ntemps=0,  # use cunning ladder
 
 output_path = '../mcmc_fits/galaxy_pages_{aper}_spb/F{field}/'
 
+fluxunit = 1e-17
 
 def get_data(glx, field, aper):
     filetemplate = ('../plot_aper/all_spectra_hst/'
@@ -38,6 +39,9 @@ def get_data(glx, field, aper):
     xmeans = xmeans[ok].astype(np.float64)
     ymeans = ymeans[ok].astype(np.float64)
     yerror = yerror[ok].astype(np.float64)
+
+    ymeans /= fluxunit
+    yerror /= fluxunit
     return xmeans, ymeans, yerror
 
 
@@ -75,6 +79,10 @@ def run_glx(glx, field, aper):
     fluxNII = flattable[:, 3]
     NIIHa = flattable[:, 4]
     absEWHa = flattable[:, 5]
+
+    continuum *= fluxunit
+    fluxHa *= fluxunit
+    fluxNII *= fluxunit
 
     # Creating the FITS file with the samplers and the probability
     cols = [pyfits.Column(name='continuum', format='E', array=continuum),

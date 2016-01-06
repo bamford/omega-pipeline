@@ -19,13 +19,13 @@ def create_init_pars(x, y):
     xmin, xmax, ymin, ymax, zmin, zmax, fmin, fmax = get_ranges(x, y)
 
     init_pars = {}
-    init_pars['fixha_better'] = InitPars([[ymin, ymax],
+    init_pars['fixha'] = InitPars([[ymin, ymax],
                                           [zmin, zmax],
                                           [0, fmax],
                                           [0, 3],
                                           [0, 5]])
 
-    init_pars['fixha'] = InitPars([[ymin, ymax],
+    init_pars['fixha_poor'] = InitPars([[ymin, ymax],
                                    [zmin, zmax],
                                    [0, fmax],
                                    [0, fmax]])

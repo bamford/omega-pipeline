@@ -1,14 +1,18 @@
 from __future__ import print_function, division
 import sys
 import time
+import warnings
 import numpy as np
 from numpy import ma
-from scipy import integrate
 from emcee import PTSampler, autocorr
 import nestle
 from multiprocess import Pool
 
 from .pdfs import norm_logpdf
+
+
+# Suppress warnings
+warnings.filterwarnings('ignore', 'converting a masked element to nan')
 
 
 def flatten_without_burn(sampler, nburn, itemp=0):
@@ -54,17 +58,26 @@ def expand_ranges(ranges, fraction):
     return ranges
 
 
-def autocor_checks(sampler, nburn, itemp=0):
+def autocor_checks(sampler, nburn, itemp=0, outfile=None):
+    print('Chains contain {} samples'.format(sampler.chain.shape[-2]),
+          file=outfile)
+    print('Specified burn-in is {} samples'.format(nburn), file=outfile)
     a_exp = sampler.acor[0]
     a_int = np.max([autocorr.integrated_time(sampler.chain[itemp, i, nburn:])
                     for i in range(sampler.chain.shape[1])], 0)
     a_exp = max(a_exp)
     a_int = max(a_int)
     print('A reasonable burn-in should be around '
-          '{:d} steps'.format(int(10 * a_exp)))
+          '{:d} steps'.format(int(10 * a_exp)), file=outfile)
     print('After burn-in, each chain produces one independent '
-          'sample per {:d} steps'.format(int(a_int)))
+          'sample per {:d} steps'.format(int(a_int)), file=outfile)
     return a_exp, a_int
+
+
+def check_acc_frac(sampler, outfile=None):
+    acc_frac = np.mean(sampler.acceptance_fraction)
+    print("Mean acceptance fraction: {0:.3f}".format(acc_frac), file=outfile)
+    return acc_frac
 
 
 def round_sig(x, sig=1):
@@ -73,7 +86,7 @@ def round_sig(x, sig=1):
     return np.round(x, d), d
 
 
-def summary(samples, par, truths=None):
+def summary(samples, par, truths=None, outfile=None):
     mean = samples.mean(0)
     sigma = samples.std(0)
     for i, p in enumerate(par):
@@ -86,18 +99,18 @@ def summary(samples, par, truths=None):
         if truths is not None:
             dpt = str(dp + 1) + post
             outstr += ('   ({:8.' + dpt + ')').format(truths[i])
-        print(outstr)
+        print(outstr, file=outfile)
     return mean, sigma
 
 
-def log_evidence(sampler, nburn):
+def log_evidence(sampler, nburn, outfile=None):
     logls = sampler.lnlikelihood[:, :, nburn:]
     logls = ma.masked_array(logls, mask=logls == -np.inf)
     mean_logls = logls.mean(axis=-1).mean(axis=-1)
-    logZ = -integrate.simps(mean_logls, sampler.betas)
-    logZ2 = -integrate.simps(mean_logls[::2], sampler.betas[::2])
+    logZ = -np.trapz(mean_logls, sampler.betas)
+    logZ2 = -np.trapz(mean_logls[::2], sampler.betas[::2])
     logZerr = abs(logZ2 - logZ)
-    print('estimated evidence = {} +- {}'.format(logZ, logZerr))
+    print('estimated evidence = {} +- {}'.format(logZ, logZerr), file=outfile)
     return logZ, logZerr
 
 
@@ -114,26 +127,43 @@ class LogLikelihood:
         return lnL.squeeze()
 
 
-def check_init_pars(logl, logp, p0):
+def check_init_pars(logl, logp, p0, outfile=None):
     ok = True
+    p0 = p0.reshape((1, -1, p0.shape[-1]))
     prior0bad = (logp(p0) == -np.inf).sum() / np.product(p0.shape)
     if prior0bad > 0:
         ok = False
         print('Warning: {:.2f}% of initial parameters '
-              'have zero prior'.format(prior0bad * 100))
+              'have zero prior'.format(prior0bad * 100), file=outfile)
     lnfunc0bad = (logl(p0) == -np.inf).sum() / np.product(p0.shape)
     if lnfunc0bad > 0:
         ok = False
         print('Warning: {:.2f}% of initial parameters '
-              'have zero likelihood'.format(lnfunc0bad * 100))
+              'have zero likelihood'.format(lnfunc0bad * 100), file=outfile)
     return ok
 
 
 def run_emcee(logl, logp, p0func,
-              ntemps=50, nwalkers=50, nsamples=2500,
-              minlogbeta=-6, nupdates=10,
-              threads=1, outfile=None):
-    betas = np.logspace(0, minlogbeta, ntemps)
+              ntemps=0, nwalkers=50, nsamples=2500,
+              minlogbeta=None, nupdates=10,
+              threads=1, outfilename=None, saveall=False,
+              **kwargs):
+    if minlogbeta is None:
+        if ntemps == 0:
+            # use cunning ladder
+            betas = np.concatenate((np.linspace(0, -0.9375, 16),
+                                    np.linspace(-1, -1.875, 8),
+                                    np.linspace(-2, -3.75, 8),
+                                    np.linspace(-4, -7.5, 8),
+                                    np.linspace(-8, -15, 8),
+                                    np.linspace(-16, -30, 8),
+                                    np.linspace(-32, -56, 4)))
+            betas = 10**(np.sort(betas)[::-1])
+        else:
+            betas = None  # use emcee default
+    else:
+        betas = np.logspace(0, minlogbeta, ntemps)
+    ntemps = len(betas)
     pos = p0func((ntemps, nwalkers))
     if not check_init_pars(logl, logp, pos):
         return None
@@ -157,14 +187,24 @@ def run_emcee(logl, logp, p0func,
     nsteps = nsamples - sampler.chain.shape[-2]
     if nsteps > 0:
         pos, lnprob, rstate = sampler.run_mcmc(pos, nsteps)
-    if outfile is None:
-        outfile = 'emcee_sampler.npz'
-    np.savez(outfile,
-             acceptance_fraction=sampler.acceptance_fraction,
-             acor=sampler.acor, beta=sampler.betas, chain=sampler.chain,
-             lnlikelihood=sampler.lnlikelihood,
-             lnprobability=sampler.lnprobability,
-             tswap_acceptance_fraction=sampler.tswap_acceptance_fraction)
+    if outfilename is None:
+        outfilename = 'emcee_sampler.npz'
+    if saveall:
+        np.savez(outfilename,
+                 acceptance_fraction=sampler.acceptance_fraction,
+                 acor=sampler.acor, beta=sampler.betas, chain=sampler.chain,
+                 lnlikelihood=sampler.lnlikelihood,
+                 lnprobability=sampler.lnprobability,
+                 tswap_acceptance_fraction=sampler.tswap_acceptance_fraction)
+    else:
+        # only save lowest temperature and thin samples by factor of ten
+        np.savez(outfilename,
+                 acceptance_fraction=sampler.acceptance_fraction,
+                 acor=sampler.acor, beta=sampler.betas,
+                 chain=sampler.chain[0, :, ::10],
+                 lnlikelihood=sampler.lnlikelihood[0, :, ::10],
+                 lnprobability=sampler.lnprobability[0, :, ::10],
+                 tswap_acceptance_fraction=sampler.tswap_acceptance_fraction)
     return sampler
 
 

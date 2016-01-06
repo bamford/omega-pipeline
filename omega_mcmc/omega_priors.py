@@ -49,7 +49,7 @@ def lnprior_redshift(redshift, zmin, zmax):
     return beta_logpdf(redshift, c, c, loc=zmin, scale=(zmax - zmin))
 
 
-class LogPriorFixHaBetter:
+class LogPriorFixHa:
     def __init__(self, ymin, ymax, zmin, zmax, fmax):
         self.ymin = ymin
         self.ymax = ymax
@@ -102,23 +102,23 @@ def create_priors(x, y):
 
     lnpriors, ranges = {}, {}
 
-    lnpriors['fixha_better'] = LogPriorFixHaBetter(ymin, ymax, zmin, zmax, fmax)
+    lnpriors['fixha'] = LogPriorFixHa(ymin, ymax, zmin, zmax, fmax)
 
-    # ranges for fixha_better are just for nestle
-    ranges['fixha_better'] = np.array([[ymin, ymax], [zmin, zmax],
+    # ranges for fixha are just for nestle
+    ranges['fixha'] = np.array([[ymin, ymax], [zmin, zmax],
                                        [fmin, fmax], [-1, 10], [-1, 10]])
 
-    ranges['fixha'] = np.array([[ymin, ymax], [zmin, zmax],
+    ranges['fixha_poor'] = np.array([[ymin, ymax], [zmin, zmax],
                              [fmin, fmax], [fmin, fmax]])
-    lnpriors['fixha_uniform'] = LogPriorUniform(ranges['fixha'])
-    lnpriors['fixha_normal'] = LogPriorNormal(ranges['fixha'])
+    lnpriors['fixha_poor_uniform'] = LogPriorUniform(ranges['fixha_poor'])
+    lnpriors['fixha_poor_normal'] = LogPriorNormal(ranges['fixha_poor'])
 
-    ranges['line'] = ranges['fixha'][0:3]
+    ranges['line'] = ranges['fixha_poor'][0:3]
     lnpriors['line_uniform'] = LogPriorUniform(ranges['line'])
     lnpriors['line_normal'] = LogPriorNormal(ranges['line'])
     lnpriors['line_truncnormal'] = LogPriorNormal(ranges['line'], trunc=True)
 
-    ranges['flat'] = ranges['fixha'][0:1]
+    ranges['flat'] = ranges['fixha_poor'][0:1]
     lnpriors['flat_uniform'] = LogPriorUniform(ranges['flat'])
     lnpriors['flat_normal'] = LogPriorNormal(ranges['flat'])
 

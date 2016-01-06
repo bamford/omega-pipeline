@@ -10,7 +10,7 @@ NIIratio = 3.06
 linewidth = 7.5
 
 
-def fixha_better_model(x, p):
+def fixha_model(x, p):
     p = np.atleast_2d(p)
     continuum, redshift, fluxNII, NIIHa, absEWHa = p.T
     fluxHa = fluxNII / NIIHa - absEWHa * continuum
@@ -20,10 +20,10 @@ def fixha_better_model(x, p):
               norm_pdf(x, zfactor * wlNIIb, linewidth) * fluxNII)
     return model.squeeze()
 
-par_fixha_better = ['continuum', 'redshift', 'flux NII', 'NII/Ha', 'abs EW Ha']
+par_fixha = ['continuum', 'redshift', 'flux NII', 'NII/Ha', 'abs EW Ha']
 
 
-def fixha_model(x, p):
+def fixha_poor_model(x, p):
     p = np.atleast_2d(p)
     continuum, redshift, fluxHa, fluxNII = p.T
     zfactor = 1 + redshift
@@ -32,7 +32,7 @@ def fixha_model(x, p):
               norm_pdf(x, zfactor * wlNIIb, linewidth) * fluxNII)
     return model.squeeze()
 
-par_fixha = ['continuum', 'redshift', 'flux Ha', 'flux NII']
+par_fixha_poor = ['continuum', 'redshift', 'flux Ha', 'flux NII']
 
 
 def flat_model(x, p):

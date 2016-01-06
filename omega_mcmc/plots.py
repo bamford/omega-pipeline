@@ -1,4 +1,5 @@
 from __future__ import print_function, division
+import warnings
 import numpy as np
 from numpy import ma
 from matplotlib import pyplot as plt
@@ -8,13 +9,19 @@ import corner
 from emcee import autocorr
 import nestle
 
-from .convenience import flatten_without_burn, summary, log_evidence
+from .convenience import (flatten_without_burn, summary, log_evidence,
+                          autocor_checks, check_acc_frac)
 
 
 # better-looking plots
 plt.rcParams['font.family'] = 'serif'
-plt.rcParams['figure.figsize'] = (10, 5)
+plt.rcParams['figure.figsize'] = (10, 10)
 plt.rcParams['font.size'] = 10
+
+
+# Suppress warnings
+warnings.filterwarnings('ignore', 'tight_layout')
+warnings.filterwarnings('ignore', 'converting a masked element to nan')
 
 
 def plot_chain(sampler, par, nburn=None, itemp=0, outfile=None):
@@ -22,15 +29,26 @@ def plot_chain(sampler, par, nburn=None, itemp=0, outfile=None):
     if nburn is None:
         nburn = sampler.chain.shape[2] // 10
     nrow = int(np.ceil(len(par) / 2.0))
+    if len(par) == 1:
+        ncol = 1
+        plt.figure(figsize=(10, 5))
+    else:
+        ncol = 2
     for i, p in enumerate(par):
-        plt.subplot(nrow, 2, i + 1)
-        for w in range(nwalkers):
-            plt.plot(np.arange(len(sampler.chain[itemp, 0, :, 0])),
-                     sampler.chain[itemp, w, :, i], 'r-', alpha=1.0 / nwalkers)
-        plt.xlabel(p)
+        plt.subplot(nrow, ncol, i + 1)
+        for w in range(0, nwalkers, 2):
+            # only show half of walkers and thin samples by factor of ten
+            plt.plot(np.arange(len(sampler.chain[itemp, 0, :, 0]), step=10),
+                     sampler.chain[itemp, w, ::10, i], 'r-',
+                     alpha=1.0 / nwalkers)
+        plt.ylabel(p)
+        plt.xlabel('sample number')
         aymin, aymax = plt.ylim()
         plt.vlines(nburn, aymin, aymax, linestyle=':')
         plt.ylim(aymin, aymax)
+    plt.suptitle('chain itemp={}'.format(itemp))
+    plt.tight_layout()
+    plt.subplots_adjust(top=0.9)
     if outfile is not None:
         plt.savefig(outfile)
 
@@ -39,11 +57,19 @@ def plot_hist(sampler, par, nburn=None, weights=None, outfile=None):
     if nburn is None:
         nburn = sampler.chain.shape[2] // 10
     nrow = int(np.ceil(len(par) / 2.0))
+    if len(par) == 1:
+        ncol = 1
+        plt.figure(figsize=(10, 5))
+    else:
+        ncol = 2
     for i, p in enumerate(par):
-        plt.subplot(nrow, 2, i + 1)
+        plt.subplot(nrow, ncol, i + 1)
         plt.hist(flatten_without_burn(sampler, nburn)[:, i], weights=weights,
                  bins=100, histtype='stepfilled', alpha=0.75)
         plt.xlabel(p)
+    plt.suptitle('histograms')
+    plt.tight_layout()
+    plt.subplots_adjust(top=0.9)
     if outfile is not None:
         plt.savefig(outfile)
 
@@ -56,42 +82,77 @@ def plot_func(sampler, model, xmin, xmax, xdata, ydata, yerror,
     ychain = [model(xchain, p, *model_pars)
               for p in flatten_without_burn(sampler, nburn)]
     plt.errorbar(xdata, ydata, yerror, None, 'o')
+    # plot a subset of the samples
     for i, y in enumerate(ychain[::100]):
         plt.plot(xchain, y, '-', alpha=0.1, c='green')
     plt.xlim(xmin, xmax)
+    plt.suptitle('function samples')
+    plt.tight_layout()
+    plt.subplots_adjust(top=0.9)
     if outfile is not None:
         plt.savefig(outfile)
 
 
 def plot_triangle(samples, par, model, xdata, ydata, yerror,
+                  xlabel='', ylabel='',
                   itemp=0, outfile=None, model_pars=[]):
-    xchain = np.linspace(xdata.min(), xdata.max(), 100)
-    ychain = [model(xchain, p, *model_pars) for p in samples]
     if len(par) == 1:
+        plt.figure(figsize=(10, 5))
         plt.subplot(1, 2, 1)
         plt.hist(samples[:, 0], bins=100, histtype='stepfilled', alpha=0.75)
-        plt.subplot(1, 2, 2)
+        ax = plt.subplot(1, 2, 2)
     else:
         corner.corner(samples, labels=par)
-        if len(par) % 2 == 0:
-            n = 2
-        else:
-            n = int(np.ceil(len(par) / 2.0)) + 1
-        plt.subplot(n, n, n)
-    for y in ychain[::100]:
-        plt.plot(xchain, y, 'r-', alpha=1000.0 / len(ychain))
-    plt.errorbar(xdata, ydata, yerror, None, 'o')
-    plt.subplots_adjust(wspace=0.2, hspace=0.2)
+        # n = 2 if (len(par) % 2 == 0) else 3
+        n = 3
+        ax = plt.subplot(n, n, n)
+    # plot a subset of the samples
+    xchain = np.linspace(xdata.min(), xdata.max(), 100)
+    ychain = [model(xchain, p, *model_pars) for p in samples[::100]]
+    for y in ychain:
+        ax.plot(xchain, y, 'r-', alpha=min(1000.0 / len(ychain), 0.5))
+    # plot the "average" of the samples
+    ymean = model(xchain, samples.mean(0), *model_pars)
+    ax.plot(xchain, ymean, 'b-', lw=3, alpha=0.75)
+    ax.errorbar(xdata, ydata, yerror, None, 'ok')
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.xaxis.set_label_coords(0.5, -0.3)
+    ax.yaxis.set_label_coords(0.5, -0.3)
+    [l.set_rotation(45) for l in ax.get_xticklabels()]
+    [l.set_rotation(45) for l in ax.get_yticklabels()]
+    plt.subplots_adjust(wspace=0.1, hspace=0.1)
+    plt.suptitle('triangle')
     if outfile is not None:
         plt.savefig(outfile)
 
 
-def check_betas(sampler, nburn=500):
+def check_betas(sampler, nburn=500, outfile=None):
     logls = sampler.lnlikelihood[:, :, nburn:]
     logls = ma.masked_array(logls, mask=logls == -np.inf)
     mean_logls = logls.mean(axis=-1).mean(axis=-1)
-    fig, ax = plt.subplots()
-    plt.semilogx(sampler.betas, mean_logls, "-o")
+    fig, [ax1, ax2] = plt.subplots(2)
+    ax1.semilogx(sampler.betas, mean_logls, "-o")
+    ax1.set_xlabel('beta')
+    ax1.set_ylabel('<log(L)>')
+    integral = np.zeros_like(sampler.betas)
+    for i, b in enumerate(sampler.betas[1:]):
+        j = i+1
+        integral[j] = -np.trapz(mean_logls[:j], sampler.betas[:j])
+    ax2.semilogx(sampler.betas[1:], integral[1:], "-o")
+    ax2.set_xlabel('beta')
+    ax2.set_ylabel('integral(<log(L)>) using > beta')
+    plt.suptitle('check_betas')
+    plt.tight_layout()
+    plt.subplots_adjust(top=0.9)
+    if outfile is not None:
+        plt.savefig(outfile)
+    # return the betas index below which 50%, 90% of the integral is found
+    integral /= integral[-1]
+    integral.sort()
+    idx50 = np.searchsorted(integral, 0.5)
+    idx90 = np.searchsorted(integral, 0.9)
+    return idx50, idx90
 
 
 def plot_autocorr(sampler, nburn, itemp=0, outfile=None):
@@ -126,6 +187,10 @@ def plot_autocorr(sampler, nburn, itemp=0, outfile=None):
     ax2.set_ylabel(r"Autocorrelation after burn-in")
     ax2.text(0.9, 0.9, '{}'.format(a_int_after), horizontalalignment='right',
              verticalalignment='top', transform=ax2.transAxes)
+
+    plt.suptitle('autocorrelation')
+    plt.tight_layout()
+    plt.subplots_adjust(top=0.9)
     if outfile is not None:
         plt.savefig(outfile)
 
@@ -140,44 +205,60 @@ def plot_convergence(sampler, itemp=0, outfile=None):
     mean_track = ((mean_vs_iteration - mean_vs_iteration[-1]) /
                   stdev_vs_iteration[-1])
     stdev_track = (stdev_vs_iteration / stdev_vs_iteration[-1]) - 1
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(10, 5))
+    # only plot every tenth iteration
     ax.set_color_cycle(palette.mpl_colors)
-    ax.plot(iterno, mean_track, linestyle='-')
+    ax.plot(iterno[::10], mean_track[::10], linestyle='-')
     ax.set_color_cycle(palette.mpl_colors)
-    ax.plot(iterno, stdev_track, linestyle='--')
+    ax.plot(iterno[::10], stdev_track[::10], linestyle='--')
+    ax.set_xlabel('sample number')
+    ax.set_ylabel("Convergence criteria")
+    plt.suptitle('convergence')
+    plt.tight_layout()
+    plt.subplots_adjust(top=0.9)
     if outfile is not None:
         plt.savefig(outfile)
 
 
-def print_emcee(sampler, par, model, x, y, yerror, nburn, truths=None,
-                outfile=None):
-    mean, sigma = summary(flatten_without_burn(sampler, nburn),
-                          par, truths=truths)
-    samples = flatten_without_burn(sampler, nburn)
-    logz, logzerr = log_evidence(sampler, nburn)
-    ntemp = sampler.chain.shape[0]
-    print()
-    if outfile is not None:
-        pdf = PdfPages(outfile)
-        def page(title):
-            plt.suptitle(title)
-            pdf.savefig()
-            plt.close()
-    else:
-        def page(title):
-            plt.suptitle(title)
-    plot_triangle(samples, par, model, x, y, yerror)
-    page('triangle')
-    check_betas(sampler, nburn)
-    page('check_betas')
-    for itemp in (0, ntemp // 2, ntemp - 1):
-        plot_chain(sampler, par, nburn, itemp=itemp)
-        page('chain itemp={}'.format(itemp))
-        plot_autocorr(sampler, nburn, itemp=itemp)
-        page('autocorr itemp={}'.format(itemp))
-        plot_convergence(sampler, itemp=itemp)
-        page('convergence itemp={}'.format(itemp))
-    pdf.close()
+def print_emcee(sampler, par, model, x, y, yerror, nburn,
+                xlabel='', ylabel='', truths=None,
+                outfilename=None, **kwargs):
+    stats = {}
+    with open(outfilename, 'w') as outfile:
+        samples = flatten_without_burn(sampler, nburn)
+        stats['mean'], stats['sigma'] = summary(samples,
+                                                par, truths=truths,
+                                                outfile=outfile)
+
+        stats['logz'], stats['logzerr'] = log_evidence(sampler, nburn,
+                                                       outfile=outfile)
+        stats['a_exp'], stats['a_int'] = autocor_checks(sampler, nburn,
+                                                        outfile=outfile)
+        stats['acc_frac'] = check_acc_frac(sampler, outfile=outfile)
+        print(file=outfile)
+        if outfilename is not None:
+            pdf = PdfPages(outfilename + '.pdf')
+            def page():
+                pdf.savefig()
+                plt.close()
+        else:
+            def page(title):
+                pass
+        plot_triangle(samples, par, model, x, y, yerror,
+                      xlabel, ylabel)
+        page()
+        itemp50, itemp90 = check_betas(sampler, nburn)
+        page()
+        # ntemp = sampler.chain.shape[0]
+        for itemp in (0, itemp50, itemp90):
+            plot_chain(sampler, par, nburn, itemp=itemp)
+            page()
+            plot_autocorr(sampler, nburn, itemp=itemp)
+            page()
+            plot_convergence(sampler, itemp=itemp)
+            page()
+        pdf.close()
+    return stats
 
 
 def print_nestle(res, par, model, x, y, yerror, outfile=None):

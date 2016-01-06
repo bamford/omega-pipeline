@@ -22,8 +22,8 @@ for key in fieldDict.keys():
 
     fout.write('# OPTIONS FOR PBS PRO ==============================================================\n')
     fout.write('#\n')
-    fout.write('#PBS -l walltime=01:00:00\n')
-    fout.write('# This specifies the job will run within 1 hour \'real\' time\n')
+    fout.write('#PBS -l walltime=02:00:00\n')
+    fout.write('# This specifies the job will run within 2 hours \'real\' time\n')
 
     fout.write('#PBS -l select=1:ncpus=1:mem=1gb\n')
     fout.write('# This specifies the resources needed for each task\n')

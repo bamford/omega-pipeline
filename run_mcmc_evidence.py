@@ -54,19 +54,19 @@ def run_glx(glx, field, aper):
     sampler_fixha, stats_fixha = run_fixha(
         x, y, yerror, lnpriors, init_pars,
         run_emcee_conf=run_emcee_conf,
-        label=(output_path + 'fixha_{glx}').format(
+        label=(output_path + '{glx}').format(
             aper=aper, field=field, glx=glx))
 
     sampler_line, stats_line = run_line(
         x, y, yerror, lnpriors, init_pars,
         run_emcee_conf=run_emcee_conf,
-        label=(output_path + 'line_{glx}').format(
+        label=(output_path + '{glx}').format(
             aper=aper, field=field, glx=glx))
 
     sampler_flat, stats_flat = run_flat(
         x, y, yerror, lnpriors, init_pars,
         run_emcee_conf=run_emcee_conf,
-        label=(output_path + 'flat_{glx}').format(
+        label=(output_path + '{glx}').format(
             aper=aper, field=field, glx=glx))
 
     nburn = run_emcee_conf['nburn']

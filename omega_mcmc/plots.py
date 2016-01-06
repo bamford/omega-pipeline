@@ -99,8 +99,8 @@ def plot_triangle(samples, par, model, xdata, ydata, yerror,
                   itemp=0, outfile=None, model_pars=[]):
     if len(par) == 1:
         plt.figure(figsize=(10, 5))
-        plt.subplot(1, 2, 1)
-        plt.hist(samples[:, 0], bins=100, histtype='stepfilled', alpha=0.75)
+        ax = plt.subplot(1, 2, 1)
+        ax.hist(samples[:, 0], bins=100, histtype='stepfilled', alpha=0.75)
         ax.set_xlabel(ylabel)
         ax.set_ylabel(frequency)
         ax = plt.subplot(1, 2, 2)

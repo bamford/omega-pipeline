@@ -44,7 +44,7 @@ def run_line(x, y, yerror, lnpriors, init_pars,
              label='sim', output=True):
     sampler = run_emcee(
         LogLikelihood(line_model, x, y, yerror),
-        lnpriors['line_normal'],
+        lnpriors['line'],
         init_pars['line'],
         outfilename='{}_sampler_line'.format(label),
         **run_emcee_conf)
@@ -60,7 +60,7 @@ def run_flat(x, y, yerror, lnpriors, init_pars,
              label='sim', output=True):
     sampler = run_emcee(
         LogLikelihood(flat_model, x, y, yerror),
-        lnpriors['flat_normal'],
+        lnpriors['flat'],
         init_pars['flat'],
         outfilename='{}_sampler_flat'.format(label),
         **run_emcee_conf)

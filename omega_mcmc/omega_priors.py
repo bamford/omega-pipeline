@@ -68,6 +68,35 @@ class LogPriorFixHa:
         return lnprior.squeeze()
 
 
+class LogPriorLine:
+    def __init__(self, ymin, ymax, zmin, zmax, fmax):
+        self.ymin = ymin
+        self.ymax = ymax
+        self.zmin = zmin
+        self.zmax = zmax
+        self.fmax = fmax
+
+    def __call__(self, p):
+        p = np.atleast_2d(p)
+        continuum, redshift, flux = p.T
+        lnprior = lnprior_continuum(continuum, self.ymin, self.ymax)
+        lnprior += lnprior_redshift(redshift, self.zmin, self.zmax)
+        lnprior += lnprior_fluxNII(flux, self.fmax)
+        return lnprior.squeeze()
+
+
+class LogPriorFlat:
+    def __init__(self, ymin, ymax):
+        self.ymin = ymin
+        self.ymax = ymax
+
+    def __call__(self, p):
+        p = np.atleast_2d(p)
+        continuum = p.T
+        lnprior = lnprior_continuum(continuum, self.ymin, self.ymax)
+        return lnprior.squeeze()
+
+
 # Less-informative priors
 # Simpler priors for comparison and testing
 
@@ -103,6 +132,8 @@ def create_priors(x, y):
     lnpriors, ranges = {}, {}
 
     lnpriors['fixha'] = LogPriorFixHa(ymin, ymax, zmin, zmax, fmax)
+    lnpriors['line'] = LogPriorLine(ymin, ymax, zmin, zmax, fmax)
+    lnpriors['flat'] = LogPriorFlat(ymin, ymax)
 
     # ranges for fixha are just for nestle
     ranges['fixha'] = np.array([[ymin, ymax], [zmin, zmax],

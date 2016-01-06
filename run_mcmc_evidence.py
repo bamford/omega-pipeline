@@ -10,18 +10,18 @@ from omega_mcmc.omega_init_pars import create_init_pars
 from omega_mcmc.run_fit import run_fixha, run_line, run_flat
 
 
-run_emcee_conf = dict(ntemps=50,  # 0 to use cunning ladder
+run_emcee_conf = dict(ntemps=0,  # 0 to use cunning ladder
                       nwalkers=50,
-                      nsamples=1500,
+                      nsamples=2000,
                       nupdates=10,
-                      nburn=500,
-                      minlogbeta=-16,
+                      nburn=1000,
+                      minlogbeta=None,
                       xlabel='wavelength',
                       ylabel='flux')
 
 output_path = '../mcmc_fits/galaxy_pages_{aper}_spb/F{field}/'
 
-fluxunit = 1e-17
+fluxunit = 1e-16
 
 def get_data(glx, field, aper):
     filetemplate = ('../plot_aper/all_spectra_hst/'

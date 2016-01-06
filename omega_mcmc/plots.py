@@ -94,7 +94,7 @@ def plot_func(sampler, model, xmin, xmax, xdata, ydata, yerror,
 
 
 def plot_triangle(samples, par, model, xdata, ydata, yerror,
-                  xlabel='', ylabel='',
+                  xlabel='', ylabel='', weights=None
                   itemp=0, outfile=None, model_pars=[]):
     if len(par) == 1:
         plt.figure(figsize=(10, 5))
@@ -110,10 +110,15 @@ def plot_triangle(samples, par, model, xdata, ydata, yerror,
     xchain = np.linspace(xdata.min(), xdata.max(), 100)
     ychain = [model(xchain, p, *model_pars) for p in samples[::100]]
     for y in ychain:
-        ax.plot(xchain, y, 'r-', alpha=min(1000.0 / len(ychain), 0.5))
-    # plot the "average" of the samples
+        ax.plot(xchain, y, 'r-', alpha=min(10.0 / len(ychain), 0.5))
+    # plot the "average" solution of the samples
     ymean = model(xchain, samples.mean(0), *model_pars)
     ax.plot(xchain, ymean, 'b-', lw=3, alpha=0.75)
+    if weights is not None:
+        # plot the "maximum probability" solution of the samples
+        best = weights.argmax()
+        ybest = model(xchain, samples[best], *model_pars)
+        ax.plot(xchain, ybest, 'g--', lw=3, alpha=0.75)
     ax.errorbar(xdata, ydata, yerror, None, 'ok')
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
@@ -226,6 +231,7 @@ def print_emcee(sampler, par, model, x, y, yerror, nburn,
     stats = {}
     with Tee(outfilename + '.log') as outfile:
         samples = flatten_without_burn(sampler, nburn)
+        lnprob = lnprobability_without_burn(sampler, nburn)
         stats['mean'], stats['sigma'] = summary(samples,
                                                 par, truths=truths,
                                                 outfile=outfile)
@@ -245,7 +251,7 @@ def print_emcee(sampler, par, model, x, y, yerror, nburn,
             def page(title):
                 pass
         plot_triangle(samples, par, model, x, y, yerror,
-                      xlabel, ylabel)
+                      xlabel, ylabel, weights=lnprob)
         page()
         itemp50, itemp90 = check_betas(sampler, nburn)
         stats.update(itemp50=itemp50, itemp90=itemp90)

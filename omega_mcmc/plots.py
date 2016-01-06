@@ -117,8 +117,8 @@ def plot_triangle(samples, par, model, xdata, ydata, yerror,
     ax.errorbar(xdata, ydata, yerror, None, 'ok')
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
-    ax.xaxis.set_label_coords(0.5, -0.3)
-    ax.yaxis.set_label_coords(0.5, -0.3)
+    ax.xaxis.set_label_coords(0.5, -0.2)
+    ax.yaxis.set_label_coords(-0.2, 0.5)
     [l.set_rotation(45) for l in ax.get_xticklabels()]
     [l.set_rotation(45) for l in ax.get_yticklabels()]
     plt.subplots_adjust(wspace=0.1, hspace=0.1)

@@ -35,9 +35,9 @@ def get_data(glx, field, aper):
 
     yerror[yerror == 0] = 1.0  # ARBITRARY?!?
 
-    xmeans = xmeans[ok]
-    ymeans = ymeans[ok]
-    yerror = yerror[ok]
+    xmeans = xmeans[ok].astype(np.float64)
+    ymeans = ymeans[ok].astype(np.float64)
+    yerror = yerror[ok].astype(np.float64)
     return xmeans, ymeans, yerror
 
 

@@ -101,6 +101,8 @@ def plot_triangle(samples, par, model, xdata, ydata, yerror,
         plt.figure(figsize=(10, 5))
         plt.subplot(1, 2, 1)
         plt.hist(samples[:, 0], bins=100, histtype='stepfilled', alpha=0.75)
+        ax.set_xlabel(ylabel)
+        ax.set_ylabel(frequency)
         ax = plt.subplot(1, 2, 2)
     else:
         corner.corner(samples, labels=par)
@@ -123,11 +125,13 @@ def plot_triangle(samples, par, model, xdata, ydata, yerror,
     ax.errorbar(xdata, ydata, yerror, None, 'ok')
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
-    ax.xaxis.set_label_coords(0.5, -0.2)
-    ax.yaxis.set_label_coords(-0.2, 0.5)
+    ax.xaxis.set_label_coords(0.5, -0.22)
+    ax.yaxis.set_label_coords(-0.22, 0.5)
     [l.set_rotation(45) for l in ax.get_xticklabels()]
     [l.set_rotation(45) for l in ax.get_yticklabels()]
     plt.subplots_adjust(wspace=0.1, hspace=0.1)
+    if len(par) == 1:
+        plt.tight_layout()
     plt.suptitle('triangle')
     if outfile is not None:
         plt.savefig(outfile)

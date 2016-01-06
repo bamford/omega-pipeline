@@ -224,7 +224,7 @@ def print_emcee(sampler, par, model, x, y, yerror, nburn,
                 xlabel='', ylabel='', truths=None,
                 outfilename=None, **kwargs):
     stats = {}
-    with open(outfilename, 'w') as outfile:
+    with open(outfilename + '.log', 'w') as outfile:
         samples = flatten_without_burn(sampler, nburn)
         stats['mean'], stats['sigma'] = summary(samples,
                                                 par, truths=truths,

@@ -3,11 +3,11 @@
 import numpy as np
 from astropy.io import fits as pyfits
 
-from .convenience import (flatten_without_burn,
+from omega_mcmc.convenience import (flatten_without_burn,
                           lnprobability_without_burn)
-from .omega_priors import create_priors
-from .omega_init_pars import create_init_pars
-from .run_fit import run_fixha, run_line, run_flat
+from omega_mcmc.omega_priors import create_priors
+from omega_mcmc.omega_init_pars import create_init_pars
+from omega_mcmc.run_fit import run_fixha, run_line, run_flat
 
 
 run_emcee_conf = dict(ntemps=0,  # use cunning ladder

@@ -9,8 +9,9 @@ import corner
 from emcee import autocorr
 import nestle
 
-from .convenience import (flatten_without_burn, summary, log_evidence,
-                          autocor_checks, check_acc_frac, Tee)
+from .convenience import (flatten_without_burn, lnprobability_without_burn,
+                          summary, log_evidence, autocor_checks,
+                          check_acc_frac, Tee)
 
 
 # better-looking plots

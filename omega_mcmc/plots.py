@@ -10,7 +10,7 @@ from emcee import autocorr
 import nestle
 
 from .convenience import (flatten_without_burn, summary, log_evidence,
-                          autocor_checks, check_acc_frac)
+                          autocor_checks, check_acc_frac, Tee)
 
 
 # better-looking plots
@@ -224,7 +224,7 @@ def print_emcee(sampler, par, model, x, y, yerror, nburn,
                 xlabel='', ylabel='', truths=None,
                 outfilename=None, **kwargs):
     stats = {}
-    with open(outfilename + '.log', 'w') as outfile:
+    with Tee(outfilename + '.log') as outfile:
         samples = flatten_without_burn(sampler, nburn)
         stats['mean'], stats['sigma'] = summary(samples,
                                                 par, truths=truths,

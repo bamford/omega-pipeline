@@ -217,3 +217,18 @@ def run_nestle(logl, logp, ranges, npoints=1000, method='single'):
 
     return nestle.sample(logprob, prior_transform, len(ranges),
                          method=method, npoints=npoints)
+
+
+class Tee(object):
+    def __init__(self, filename):
+        self.file = open(filename, "w")
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.file.close()
+
+    def write(self, message):
+        sys.stdout.write(message)
+        self.file.write(message)

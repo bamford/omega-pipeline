@@ -50,7 +50,6 @@ for key in fieldDict.keys():
 
     fout.write('echo "If I named my input file INPUT.$PBS_ARRAY_INDEX, I could run my program on this file in parallel with all the other input files"\n')
     fout.write('./script_aper5_spb_field%d.$PBS_ARRAY_INDEX\n'%key)
-    fout.write('sleep 20\n')
 
     fout.write('echo "Finished job now"\n')
 
@@ -93,8 +92,6 @@ for key in fieldDict.keys():
 
     fout.write('echo "If I named my input file INPUT.$PBS_ARRAY_INDEX, I could run my program on this file in parallel with all the other input files"\n')
     fout.write('./script_total_aper_spb_field%d.$PBS_ARRAY_INDEX\n'%key)
-    fout.write('sleep 20\n')
-
 
     fout.write('echo "Finished job now"\n')
 

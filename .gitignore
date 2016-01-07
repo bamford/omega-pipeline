@@ -1,3 +1,6 @@
+script_*
+array_*
+run_sim*.o*
 *.pyc
 *.pdf
 .pyhistory

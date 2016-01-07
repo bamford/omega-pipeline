@@ -15,7 +15,7 @@ from .omega_models import get_ranges
 def lnprior_continuum(continuum, ymin, ymax):
     # proper prior on continuum
     # same as flat model normal prior
-    return norm_logpdf(continuum, 0.5 * (ymax - ymin), 0.5 * (ymax - ymin))
+    return norm_logpdf(continuum, 0.5 * (ymax + ymin), 0.5 * (ymax - ymin))
 
 
 def lnprior_fluxNII(fluxNII, fmax):

@@ -1,8 +1,10 @@
 import numpy as np
 from scipy import stats
+from matplotlib import pyplot as plt
 
 from .pdfs import norm_logpdf, gamma_logpdf, beta_logpdf
-from .omega_models import wlHa, linewidth, get_ranges
+from .plots import plot_prior
+from .omega_models import get_ranges
 
 
 # Purposefully-informative priors
@@ -68,7 +70,7 @@ def lnprior_badfrac(badfrac):
     # proper prior on bad fraction
     # Constrained to range [0, 1],
     # but skewed to low values
-    return beta_logpdf(badfrac, 0.5, 0.5)
+    return beta_logpdf(badfrac, 0.5, 4.0)
 
 
 class LogPriorFixHa:
@@ -209,6 +211,10 @@ def create_priors(x, y):
     ranges['fixha'] = np.array([[ymin, ymax], [zmin, zmax],
                                 [fmin, fmax], [-1, 10], [-1, 10]])
 
+    ranges['fixha_sigma'] = np.array([[ymin, ymax], [zmin, zmax],
+                                      [fmin, fmax], [-1, 10], [-1, 10],
+                                      [-1, 10], [-1, 10], [-0.1, 1.1]])
+
     ranges['fixha_poor'] = np.array([[ymin, ymax], [zmin, zmax],
                                      [fmin, fmax], [fmin, fmax]])
     lnpriors['fixha_poor_uniform'] = LogPriorUniform(ranges['fixha_poor'])
@@ -224,3 +230,23 @@ def create_priors(x, y):
     lnpriors['flat_normal'] = LogPriorNormal(ranges['flat'])
 
     return lnpriors, ranges
+
+
+def plot_priors(x, y, outfile=None):
+    xmin, xmax, ymin, ymax, zmin, zmax, fmin, fmax = get_ranges(x, y)
+    fig, axarr = plt.subplots(2, 4, figsize=(15, 10))
+    axarr = axarr.ravel()
+    plot_prior(axarr[0], lnprior_continuum, [ymin, ymax],
+               'continuum', args=[ymin, ymax])
+    plot_prior(axarr[1], lnprior_redshift, [zmin - 0.01, zmax + 0.01], 'redshift',
+               args=[zmin, zmax])
+    plot_prior(axarr[2], lnprior_fluxNII, [-fmax, 5*fmax], 'fluxNII',
+               args=[fmax])
+    plot_prior(axarr[3], lnprior_NIIHa, [-1, 5], 'NIIHa')
+    plot_prior(axarr[4], lnprior_absEWHa, [-1, 10], 'absEWHa')
+    plot_prior(axarr[5], lnprior_sconst, [-1, 10], 'sconst')
+    plot_prior(axarr[6], lnprior_sfactor, [-1, 10], 'sfactor')
+    plot_prior(axarr[7], lnprior_badfrac, [-0.1, 1.1], 'badfrac')
+    plt.tight_layout()
+    if outfile is not None:
+        plt.savefig(outfile)

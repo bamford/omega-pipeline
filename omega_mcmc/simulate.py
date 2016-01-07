@@ -1,8 +1,8 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
-from .omega_models import fixha_model, wlHa
-from .omega_priors import create_priors
+from .omega_models import fixha_model, wlHa, pars
+from .omega_priors import create_priors, plot_priors
 from .omega_init_pars import create_init_pars
 from .run_fit import (run_fixha, run_line, run_flat, run_fixha_poor,
                       run_fixha_sigma, run_line_sigma, run_flat_sigma)
@@ -37,7 +37,7 @@ def sim_line(continuum, redshift, fluxHa, fluxNII, xmin, xmax, nx=62, SN=10,
     return x, y_true, y_noisy, sigma
 
 
-def run(SN):
+def run(SN=10):
     truths = (3.0, 0.145, 30.0, 20.0)
     x, y_true, y, yerror = sim_line(*truths, SN=SN,
                                     xmin=1.14 * wlHa, xmax=1.16 * wlHa,
@@ -53,6 +53,8 @@ def run(SN):
     plt.errorbar(x, y, yerror, fmt='o')
     plt.savefig('{}_data.pdf'.format(label))
 
+    plot_priors(x, y, 'priors.pdf')
+    exit()
     lnpriors, ranges = create_priors(x, y)
     init_pars = create_init_pars(x, y)
 

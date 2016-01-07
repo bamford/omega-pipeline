@@ -25,6 +25,17 @@ warnings.filterwarnings('ignore', 'tight_layout')
 warnings.filterwarnings('ignore', 'converting a masked element to nan')
 
 
+def plot_prior(ax, func, range, label, args=[]):
+    x = np.linspace(range[0], range[1], 1000)
+    lnprior = func(x, *args)
+    ax.plot(x, lnprior)
+    ax.set_xlim(range[0], range[1])
+    ax.set_xlabel(label)
+    ax.set_ylabel('ln(prior)')
+    ax.hlines(lnprior.max(), range[0], range[1], linestyle='dotted')
+    ax.hlines(lnprior.max() - 2, range[0], range[1], linestyle='dashed')
+
+
 def plot_chain(sampler, par, nburn=None, itemp=0, outfile=None):
     nwalkers = sampler.chain.shape[1]
     if nburn is None:

@@ -33,7 +33,7 @@ def lnprior_NIIHa(NIIHa):
 
 
 def lnprior_absEWHa(absEWHa):
-    # proper prior on EW of Ha absorption: peaked at ~0.5
+    # proper prior on EW of Ha absorption:
     # fairly flat, with cutoffs
     # absEWHa > 3 disfavoured by lnL = -3
     # and positive definite
@@ -47,6 +47,28 @@ def lnprior_redshift(redshift, zmin, zmax):
     # Halpha is out of wavelength range by 3 sigma
     c = 1.4
     return beta_logpdf(redshift, c, c, loc=zmin, scale=(zmax - zmin))
+
+
+def lnprior_sconst(sconst):
+    # proper prior on constant error
+    # sconst > x disfavoured by lnL = -x
+    # and positive definite
+    return gamma_logpdf(sconst, a=1.0, scale=1.0)
+
+
+def lnprior_sfactor(sfactor):
+    # proper prior on error factor: peaked at ~0.5
+    # fairly flat, with cutoffs
+    # sfactor < 0.1 and > 3 disfavoured by lnL = -2.7
+    # and positive definite
+    return gamma_logpdf(sfactor, a=2.7, scale=0.5)
+
+
+def lnprior_badfrac(badfrac):
+    # proper prior on bad fraction
+    # Constrained to range [0, 1],
+    # but skewed to low values
+    return beta_logpdf(badfrac, 0.5, 0.5)
 
 
 class LogPriorFixHa:
@@ -97,6 +119,48 @@ class LogPriorFlat:
         return lnprior.squeeze()
 
 
+# Priors incorporating doubt about errors
+
+class LogPriorSigma():
+     def __call__(self, p):
+        p = np.atleast_2d(p)
+        sconst, sfactor, badfrac = p.T
+        lnprior = lnprior_sconst(sconst)
+        lnprior += lnprior_sfactor(sfactor)
+        lnprior += lnprior_badfrac(badfrac)
+        return lnprior.squeeze()
+
+
+class LogPriorFixHaSigma(LogPriorFixHa, LogPriorSigma):
+    def __call__(self, p):
+        # last three parameters relate to sigma
+        s = p[..., -3:]
+        lnprior = LogPriorSigma.__call__(self, s)
+        q = p[..., :-3]
+        lnprior += LogPriorFixHa.__call__(self, q)
+        return lnprior
+
+
+class LogPriorLineSigma(LogPriorLine, LogPriorSigma):
+    def __call__(self, p):
+        # last three parameters relate to sigma
+        s = p[..., -3:]
+        lnprior = LogPriorSigma.__call__(self, s)
+        q = p[..., :-3]
+        lnprior += LogPriorLine.__call__(self, q)
+        return lnprior
+
+
+class LogPriorFlatSigma(LogPriorFlat, LogPriorSigma):
+    def __call__(self, p):
+        # last three parameters relate to sigma
+        s = p[..., -3:]
+        lnprior = LogPriorSigma.__call__(self, s)
+        q = p[..., :-3]
+        lnprior += LogPriorFlat.__call__(self, q)
+        return lnprior
+
+
 # Less-informative priors
 # Simpler priors for comparison and testing
 
@@ -135,12 +199,18 @@ def create_priors(x, y):
     lnpriors['line'] = LogPriorLine(ymin, ymax, zmin, zmax, fmax)
     lnpriors['flat'] = LogPriorFlat(ymin, ymax)
 
-    # ranges for fixha are just for nestle
+    lnpriors['fixha_sigma'] = LogPriorFixHaSigma(ymin, ymax, zmin, zmax, fmax)
+    lnpriors['line_sigma'] = LogPriorLineSigma(ymin, ymax, zmin, zmax, fmax)
+    lnpriors['flat_sigma'] = LogPriorFlatSigma(ymin, ymax)
+
+    # ranges for mostly just for nestle
+    # uniform and normal priors only used for testing
+
     ranges['fixha'] = np.array([[ymin, ymax], [zmin, zmax],
-                                       [fmin, fmax], [-1, 10], [-1, 10]])
+                                [fmin, fmax], [-1, 10], [-1, 10]])
 
     ranges['fixha_poor'] = np.array([[ymin, ymax], [zmin, zmax],
-                             [fmin, fmax], [fmin, fmax]])
+                                     [fmin, fmax], [fmin, fmax]])
     lnpriors['fixha_poor_uniform'] = LogPriorUniform(ranges['fixha_poor'])
     lnpriors['fixha_poor_normal'] = LogPriorNormal(ranges['fixha_poor'])
 

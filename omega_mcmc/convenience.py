@@ -8,8 +8,6 @@ from emcee import PTSampler, autocorr
 import nestle
 from multiprocess import Pool
 
-from .pdfs import norm_logpdf
-
 
 # Suppress warnings
 warnings.filterwarnings('ignore', 'converting a masked element to nan')
@@ -112,19 +110,6 @@ def log_evidence(sampler, nburn, outfile=None):
     logZerr = abs(logZ2 - logZ)
     print('estimated evidence = {} +- {}'.format(logZ, logZerr), file=outfile)
     return logZ, logZerr
-
-
-class LogLikelihood:
-    def __init__(self, model, x, y, sigma):
-        self.model = model
-        self.y = y
-        self.x = x
-        self.sigma = sigma
-
-    def __call__(self, p):
-        yM = np.atleast_2d(self.model(self.x, p))
-        lnL = norm_logpdf(self.y, yM, self.sigma).sum(axis=1)
-        return lnL.squeeze()
 
 
 def check_init_pars(logl, logp, p0, outfile=None):

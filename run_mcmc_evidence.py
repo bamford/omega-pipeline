@@ -4,10 +4,10 @@ import numpy as np
 from astropy.io import fits as pyfits
 
 from omega_mcmc.convenience import (flatten_without_burn,
-                          lnprobability_without_burn)
+                                    lnprobability_without_burn)
 from omega_mcmc.omega_priors import create_priors
 from omega_mcmc.omega_init_pars import create_init_pars
-from omega_mcmc.run_fit import run_fixha, run_line, run_flat
+from omega_mcmc.run_fit import run_fixha_sigma, run_line_sigma, run_flat_sigma
 
 
 run_emcee_conf = dict(ntemps=0,  # 0 to use cunning ladder
@@ -22,6 +22,7 @@ run_emcee_conf = dict(ntemps=0,  # 0 to use cunning ladder
 output_path = '../mcmc_fits/galaxy_pages_{aper}_spb/F{field}/'
 
 fluxunit = 1e-16
+
 
 def get_data(glx, field, aper):
     filetemplate = ('../plot_aper/all_spectra_hst/'
@@ -51,7 +52,7 @@ def run_glx(glx, field, aper):
     lnpriors, ranges = create_priors(x, y)
     init_pars = create_init_pars(x, y)
 
-    sampler_fixha, stats_fixha = run_fixha(
+    sampler_fixha, stats_fixha = run_fixha_sigma(
         x, y, yerror, lnpriors, init_pars,
         run_emcee_conf=run_emcee_conf,
         label=(output_path + '{glx}').format(
@@ -60,7 +61,7 @@ def run_glx(glx, field, aper):
     run_emcee_conf_line = run_emcee_conf.copy()
     run_emcee_conf_line['nburn'] /= 2
     run_emcee_conf_line['nsamples'] = run_emcee_conf_line['nburn'] + 1000
-    sampler_line, stats_line = run_line(
+    sampler_line, stats_line = run_line_sigma(
         x, y, yerror, lnpriors, init_pars,
         run_emcee_conf=run_emcee_conf_line,
         label=(output_path + '{glx}').format(
@@ -69,7 +70,7 @@ def run_glx(glx, field, aper):
     run_emcee_conf_flat = run_emcee_conf.copy()
     run_emcee_conf_flat['nburn'] /= 4
     run_emcee_conf_flat['nsamples'] = run_emcee_conf_flat['nburn'] + 1000
-    sampler_flat, stats_flat = run_flat(
+    sampler_flat, stats_flat = run_flat_sigma(
         x, y, yerror, lnpriors, init_pars,
         run_emcee_conf=run_emcee_conf_flat,
         label=(output_path + '{glx}').format(
@@ -85,6 +86,9 @@ def run_glx(glx, field, aper):
     fluxNII = flattable[:, 2]
     NIIHa = flattable[:, 3]
     absEWHa = flattable[:, 4]
+    sconst = flattable[:, 5]
+    sfactor = flattable[:, 6]
+    badfrac = flattable[:, 7]
 
     continuum *= fluxunit
     fluxHa *= fluxunit
@@ -97,6 +101,9 @@ def run_glx(glx, field, aper):
             pyfits.Column(name='flux NII', format='E', array=fluxNII),
             pyfits.Column(name='NIIHa', format='E', array=NIIHa),
             pyfits.Column(name='absEWHa', format='E', array=absEWHa),
+            pyfits.Column(name='sconst', format='E', array=sconst),
+            pyfits.Column(name='sfactor', format='E', array=sfactor),
+            pyfits.Column(name='badfrac', format='E', array=badfrac),
             pyfits.Column(name='Probability', format='E', array=prob)]
 
     tbhdu = pyfits.new_table(pyfits.ColDefs(cols))

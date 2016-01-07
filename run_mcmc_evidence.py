@@ -81,10 +81,10 @@ def run_glx(glx, field, aper):
 
     continuum = flattable[:, 0]
     redshift = flattable[:, 1]
-    fluxHa = flattable[:, 3] / flattable[:, 4]
-    fluxNII = flattable[:, 3]
-    NIIHa = flattable[:, 4]
-    absEWHa = flattable[:, 5]
+    fluxHa = flattable[:, 2] / flattable[:, 3]
+    fluxNII = flattable[:, 2]
+    NIIHa = flattable[:, 3]
+    absEWHa = flattable[:, 4]
 
     continuum *= fluxunit
     fluxHa *= fluxunit

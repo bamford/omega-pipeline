@@ -70,7 +70,7 @@ def lnprior_badfrac(badfrac):
     # proper prior on bad fraction
     # Constrained to range [0, 1],
     # but skewed to low values
-    return beta_logpdf(badfrac, 0.5, 4.0)
+    return beta_logpdf(badfrac, 0.75, 4.0)
 
 
 class LogPriorFixHa:

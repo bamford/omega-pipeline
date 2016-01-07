@@ -25,7 +25,7 @@ for key in fieldDict.keys():
     fout.write('#PBS -l walltime=02:00:00\n')
     fout.write('# This specifies the job will run within 2 hours \'real\' time\n')
 
-    fout.write('#PBS -l select=1:ncpus=1:mem=1gb\n')
+    fout.write('#PBS -l select=1:ncpus=1:mem=2gb\n')
     fout.write('# This specifies the resources needed for each task\n')
 
     fout.write('#PBS -j oe\n')
@@ -67,7 +67,7 @@ for key in fieldDict.keys():
     fout.write('#PBS -l walltime=02:00:00\n')
     fout.write('# This specifies the job will run within 2 hours \'real\' time\n')
 
-    fout.write('#PBS -l select=1:ncpus=1:mem=1gb\n')
+    fout.write('#PBS -l select=1:ncpus=1:mem=2gb\n')
     fout.write('# This specifies the resources needed for each task\n')
 
     fout.write('#PBS -j oe\n')

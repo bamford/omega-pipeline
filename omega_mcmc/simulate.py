@@ -53,8 +53,8 @@ def run(SN=10):
     plt.errorbar(x, y, yerror, fmt='o')
     plt.savefig('{}_data.pdf'.format(label))
 
-    plot_priors(x, y, 'priors.pdf')
-    exit()
+    plot_priors(x, y, '{}_priors.pdf'.format(label))
+
     lnpriors, ranges = create_priors(x, y)
     init_pars = create_init_pars(x, y)
 

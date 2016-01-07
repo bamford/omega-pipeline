@@ -22,8 +22,8 @@ for key in fieldDict.keys():
 
     fout.write('# OPTIONS FOR PBS PRO ==============================================================\n')
     fout.write('#\n')
-    fout.write('#PBS -l walltime=01:00:00\n')
-    fout.write('# This specifies the job will run within 1 hour \'real\' time\n')
+    fout.write('#PBS -l walltime=02:00:00\n')
+    fout.write('# This specifies the job will run within 2 hours \'real\' time\n')
 
     fout.write('#PBS -l select=1:ncpus=1:mem=1gb\n')
     fout.write('# This specifies the resources needed for each task\n')
@@ -50,7 +50,6 @@ for key in fieldDict.keys():
 
     fout.write('echo "If I named my input file INPUT.$PBS_ARRAY_INDEX, I could run my program on this file in parallel with all the other input files"\n')
     fout.write('./script_aper5_spb_field%d.$PBS_ARRAY_INDEX\n'%key)
-    fout.write('sleep 20\n')
 
     fout.write('echo "Finished job now"\n')
 
@@ -65,8 +64,8 @@ for key in fieldDict.keys():
 
     fout.write('# OPTIONS FOR PBS PRO ==============================================================\n')
     fout.write('#\n')
-    fout.write('#PBS -l walltime=01:00:00\n')
-    fout.write('# This specifies the job will run within 1 hour \'real\' time\n')
+    fout.write('#PBS -l walltime=02:00:00\n')
+    fout.write('# This specifies the job will run within 2 hours \'real\' time\n')
 
     fout.write('#PBS -l select=1:ncpus=1:mem=1gb\n')
     fout.write('# This specifies the resources needed for each task\n')
@@ -93,8 +92,6 @@ for key in fieldDict.keys():
 
     fout.write('echo "If I named my input file INPUT.$PBS_ARRAY_INDEX, I could run my program on this file in parallel with all the other input files"\n')
     fout.write('./script_total_aper_spb_field%d.$PBS_ARRAY_INDEX\n'%key)
-    fout.write('sleep 20\n')
-
 
     fout.write('echo "Finished job now"\n')
 

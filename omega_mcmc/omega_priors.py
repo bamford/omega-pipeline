@@ -236,11 +236,11 @@ def plot_priors(x, y, outfile=None):
     xmin, xmax, ymin, ymax, zmin, zmax, fmin, fmax = get_ranges(x, y)
     fig, axarr = plt.subplots(2, 4, figsize=(15, 10))
     axarr = axarr.ravel()
-    plot_prior(axarr[0], lnprior_continuum, [ymin, ymax],
+    plot_prior(axarr[0], lnprior_continuum, [-3 * ymax, 3 * ymax],
                'continuum', args=[ymin, ymax])
-    plot_prior(axarr[1], lnprior_redshift, [zmin - 0.01, zmax + 0.01], 'redshift',
-               args=[zmin, zmax])
-    plot_prior(axarr[2], lnprior_fluxNII, [-fmax, 5*fmax], 'fluxNII',
+    plot_prior(axarr[1], lnprior_redshift, [zmin - 0.01, zmax + 0.01],
+               'redshift', args=[zmin, zmax])
+    plot_prior(axarr[2], lnprior_fluxNII, [-fmax, 5 * fmax], 'fluxNII',
                args=[fmax])
     plot_prior(axarr[3], lnprior_NIIHa, [-1, 5], 'NIIHa')
     plot_prior(axarr[4], lnprior_absEWHa, [-1, 10], 'absEWHa')

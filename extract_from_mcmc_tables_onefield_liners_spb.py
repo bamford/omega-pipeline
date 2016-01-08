@@ -16,6 +16,8 @@ def open_fits(aperture,glx,field):
     hdu_list = pyfits.open('galaxy_pages_'+str(aperture)+'/F'+str(field)+'/table_'+str(glx)+'.fits')
     #hdu_list = pyfits.open('galaxy_pages_'+str(aperture)+'/plot_aper_web/table_'+str(glx)+'.fits')
 
+    aperture = aperture.replace('_spb', '')
+
     ### Accesing the data table:
     table_hdu = hdu_list[1]
     ### Header of the table:

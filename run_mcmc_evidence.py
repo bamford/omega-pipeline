@@ -46,7 +46,7 @@ def get_data(glx, field, aper):
     return xmeans, ymeans, yerror
 
 
-def run_glx(glx, field, aper):
+def run_glx(glx, field, aper, reprocess=False):
     x, y, yerror = get_data(glx, field, aper)
 
     lnpriors, ranges = create_priors(x, y)
@@ -56,7 +56,8 @@ def run_glx(glx, field, aper):
         x, y, yerror, lnpriors, init_pars,
         run_emcee_conf=run_emcee_conf,
         label=(output_path + '{glx}').format(
-            aper=aper, field=field, glx=glx))
+            aper=aper, field=field, glx=glx),
+        reprocess=reprocess)
 
     run_emcee_conf_line = run_emcee_conf.copy()
     run_emcee_conf_line['nburn'] /= 2
@@ -65,7 +66,8 @@ def run_glx(glx, field, aper):
         x, y, yerror, lnpriors, init_pars,
         run_emcee_conf=run_emcee_conf_line,
         label=(output_path + '{glx}').format(
-            aper=aper, field=field, glx=glx))
+            aper=aper, field=field, glx=glx),
+        reprocess=reprocess)
 
     run_emcee_conf_flat = run_emcee_conf.copy()
     run_emcee_conf_flat['nburn'] /= 4
@@ -74,7 +76,8 @@ def run_glx(glx, field, aper):
         x, y, yerror, lnpriors, init_pars,
         run_emcee_conf=run_emcee_conf_flat,
         label=(output_path + '{glx}').format(
-            aper=aper, field=field, glx=glx))
+            aper=aper, field=field, glx=glx),
+        reprocess=reprocess)
 
     nburn = run_emcee_conf['nburn']
     flattable = flatten_without_burn(sampler_fixha, nburn)

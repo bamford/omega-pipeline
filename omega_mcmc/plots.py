@@ -8,6 +8,7 @@ from palettable.colorbrewer.qualitative import Set3_12 as palette
 import corner
 from emcee import autocorr
 import nestle
+from attrdict import AttrDict
 
 from .convenience import (flatten_without_burn, lnprobability_without_burn,
                           summary, log_evidence, autocor_checks,

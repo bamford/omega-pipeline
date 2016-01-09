@@ -37,16 +37,16 @@ def sim_line(continuum, redshift, fluxHa, fluxNII, xmin, xmax, nx=62, SN=10,
     return x, y_true, y_noisy, sigma
 
 
-def run(SN=10):
+def sim_line_standard(SN):
     truths = (3.0, 0.145, 30.0, 20.0)
     x, y_true, y, yerror = sim_line(*truths, SN=SN,
                                     xmin=1.14 * wlHa, xmax=1.16 * wlHa,
                                     sconst=0.1, sfactor=1.5, badfrac=0.05)
+    return x, y_true, y, yerror, truths
 
-    #truths = (1.0, 0.15, 30.0, 10.0)
-    #x, y_true, y, yerror = sim_line(*truths, SN=10,
-    #                                xmin=1.14 * wlHa, xmax=1.16 * wlHa)
 
+def run(SN=10, reprocess=False):
+    x, y_true, y, yerror, truths = sim_line_standard(SN)
     label = 'sim_{}'.format(SN)
 
     plt.plot(x, y_true, '-')
@@ -59,20 +59,27 @@ def run(SN=10):
     init_pars = create_init_pars(x, y)
 
     #run_fixha_poor(x, y, yerror, lnpriors, init_pars, truths=truths,
-    #               run_emcee_conf=run_emcee_conf)
+    #               run_emcee_conf=run_emcee_conf, label=label,
+    #               reprocess=reprocess)
     truths = (truths[0], truths[1], truths[3], truths[3] / truths[2], 0.0)
     run_fixha_sigma(x, y, yerror, lnpriors, init_pars, truths=truths,
-                    run_emcee_conf=run_emcee_conf, label=label)
+                    run_emcee_conf=run_emcee_conf, label=label,
+                    reprocess=reprocess)
     run_line_sigma(x, y, yerror, lnpriors, init_pars,
-             run_emcee_conf=run_emcee_conf, label=label)
+                   run_emcee_conf=run_emcee_conf, label=label,
+                   reprocess=reprocess)
     run_flat_sigma(x, y, yerror, lnpriors, init_pars,
-             run_emcee_conf=run_emcee_conf, label=label)
+                   run_emcee_conf=run_emcee_conf, label=label,
+                   reprocess=reprocess)
     run_fixha(x, y, yerror, lnpriors, init_pars, truths=truths,
-              run_emcee_conf=run_emcee_conf, label=label)
+              run_emcee_conf=run_emcee_conf, label=label,
+              reprocess=reprocess)
     run_line(x, y, yerror, lnpriors, init_pars,
-             run_emcee_conf=run_emcee_conf, label=label)
+             run_emcee_conf=run_emcee_conf, label=label,
+             reprocess=reprocess)
     run_flat(x, y, yerror, lnpriors, init_pars,
-             run_emcee_conf=run_emcee_conf, label=label)
+             run_emcee_conf=run_emcee_conf, label=label,
+             reprocess=reprocess)
 
 
 if __name__ == '__main__':

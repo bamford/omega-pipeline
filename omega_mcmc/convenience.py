@@ -219,3 +219,25 @@ class Tee(object):
     def write(self, message):
         sys.stdout.write(message)
         self.file.write(message)
+
+
+def save_emcee(filename, sample, data={}, metadata={}):
+    # This is a new (untested) approach to saving the emcee sampler
+    # and associated data, rather than simply np.savez.
+    # Using dill is another option.
+    # This would be best called from run_fit.run, where it has access to
+    # the required metadata, rather than from convenience.run_emcee.
+    h5file = h5py.File(filename, 'w')
+
+    arrays = dict(acceptance_fraction=sampler.acceptance_fraction,
+                  acor=sampler.acor, beta=sampler.betas, chain=sampler.chain,
+                  lnlikelihood=sampler.lnlikelihood,
+                  lnprobability=sampler.lnprobability,
+                  tswap_acceptance_fraction=sampler.tswap_acceptance_fraction)
+    arrays.update(data)
+
+    for key, item in arrays.items():
+        h5file.create_dataset(key, data=item, compression="gzip", shuffle=True)
+
+    for key, item in metadata.items():
+        h5file.attrs[key] = item

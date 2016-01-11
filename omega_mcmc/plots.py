@@ -38,21 +38,23 @@ def plot_prior(ax, func, range, label, args=[]):
 
 
 def plot_chain(sampler, par, nburn=None, itemp=0, outfile=None):
-    nwalkers = sampler.chain.shape[1]
+    nwalkers, nsamp = sampler.chain.shape[1:3]
     if nburn is None:
-        nburn = sampler.chain.shape[2] // 10
+        nburn = nsamp // 10
     nrow = int(np.ceil(len(par) / 2.0))
     if len(par) == 1:
         ncol = 1
         plt.figure(figsize=(10, 5))
     else:
         ncol = 2
+    samplestep = max(nsamp // 100, 1)
     for i, p in enumerate(par):
         plt.subplot(nrow, ncol, i + 1)
         for w in range(0, nwalkers, 2):
-            # only show half of walkers and thin samples by factor of ten
-            plt.plot(np.arange(len(sampler.chain[itemp, 0, :, 0]), step=10),
-                     sampler.chain[itemp, w, ::10, i], 'r-',
+            # only show half of walkers and thin to 100-200 samples
+            plt.plot(np.arange(len(sampler.chain[itemp, 0, :, 0]),
+                               step=samplestep),
+                     sampler.chain[itemp, w, ::samplestep, i], 'r-',
                      alpha=1.0 / nwalkers)
         plt.ylabel(p)
         plt.xlabel('sample number')

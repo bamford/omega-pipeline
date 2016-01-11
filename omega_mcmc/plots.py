@@ -107,7 +107,7 @@ def plot_func(sampler, model, xmin, xmax, xdata, ydata, yerror,
 
 
 def plot_triangle(samples, par, model, xdata, ydata, yerror,
-                  xlabel='', ylabel='', weights=None,
+                  xlabel='', ylabel='', weights=None, truths=None,
                   itemp=0, outfile=None, model_pars=[]):
     if len(par) == 1:
         plt.figure(figsize=(10, 5))
@@ -117,7 +117,7 @@ def plot_triangle(samples, par, model, xdata, ydata, yerror,
         ax.set_ylabel('frequency')
         ax = plt.subplot(1, 2, 2)
     else:
-        corner.corner(samples, labels=par)
+        corner.corner(samples, labels=par, truths=truths)
         # n = 2 if (len(par) % 2 == 0) else 3
         n = 3
         ax = plt.subplot(n, n, n)
@@ -268,7 +268,8 @@ def print_emcee(sampler, par, model, x, y, yerror, nburn,
             def page(title):
                 pass
         plot_triangle(samples, par, model, x, y, yerror,
-                      xlabel, ylabel, weights=lnprob)
+                      xlabel, ylabel, weights=lnprob,
+                      truths=truths)
         page()
         itemp50, itemp90 = check_betas(sampler, nburn)
         stats.update(itemp50=itemp50, itemp90=itemp90)

@@ -131,7 +131,7 @@ def check_init_pars(logl, logp, p0, outfile=None):
 def run_emcee(logl, logp, p0func,
               ntemps=0, nwalkers=50, nsamples=2500,
               minlogbeta=None, nupdates=10,
-              threads=1, outfilename=None, saveall=False,
+              threads=1, outfilename=None, saveall=True,
               **kwargs):
     if minlogbeta is None:
         if ntemps == 0:
@@ -175,21 +175,23 @@ def run_emcee(logl, logp, p0func,
     if outfilename is None:
         outfilename = 'emcee_sampler.npz'
     if saveall:
-        np.savez(outfilename,
-                 acceptance_fraction=sampler.acceptance_fraction,
-                 acor=sampler.acor, beta=sampler.betas, chain=sampler.chain,
-                 lnlikelihood=sampler.lnlikelihood,
-                 lnprobability=sampler.lnprobability,
-                 tswap_acceptance_fraction=sampler.tswap_acceptance_fraction)
+        np.savez_compressed(
+            outfilename,
+            acceptance_fraction=sampler.acceptance_fraction,
+            acor=sampler.acor, beta=sampler.betas, chain=sampler.chain,
+            lnlikelihood=sampler.lnlikelihood,
+            lnprobability=sampler.lnprobability,
+            tswap_acceptance_fraction=sampler.tswap_acceptance_fraction)
     else:
         # only save lowest temperature and thin samples by factor of ten
-        np.savez(outfilename,
-                 acceptance_fraction=sampler.acceptance_fraction,
-                 acor=sampler.acor, beta=sampler.betas,
-                 chain=sampler.chain[0, :, ::10],
-                 lnlikelihood=sampler.lnlikelihood[0, :, ::10],
-                 lnprobability=sampler.lnprobability[0, :, ::10],
-                 tswap_acceptance_fraction=sampler.tswap_acceptance_fraction)
+        np.savez_compressed(
+            outfilename,
+            acceptance_fraction=sampler.acceptance_fraction,
+            acor=sampler.acor, beta=sampler.betas,
+            chain=sampler.chain[0, :, ::10],
+            lnlikelihood=sampler.lnlikelihood[0, :, ::10],
+            lnprobability=sampler.lnprobability[0, :, ::10],
+            tswap_acceptance_fraction=sampler.tswap_acceptance_fraction)
     return sampler
 
 
